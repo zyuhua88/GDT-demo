@@ -1,0 +1,289 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>TestCard</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/js/zagJs.js"></script>
+    <style>
+        .bor {
+            border: 1px #dcdcdc solid;
+            background: #f0f0f0
+        }
+
+        .bor1 {
+            border-bottom: 1px solid #dcdcdc;
+            border-left: 1px solid #dcdcdc;
+            background: #fff
+        }
+
+        .bor-top {
+            border-top: 1px solid #dcdcdc
+        }
+
+        .bor-topn {
+            border-bottom: 0px
+        }
+
+        .title {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            cursor: pointer
+        }
+
+        .title1 {
+            text-align: center;
+            margin-top: 20px;
+            cursor: pointer
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid" style="width:88%;margin:20px auto" id="demo">
+        <h3 style="text-align:center;font-weight:bold;margin:30px auto">“三级”安全教育记录卡</h3>
+        <div class="layui-row bor bor-topn">
+            <div class="layui-col-xs12 layui-col-sm3 layui-col-md3">
+                <div class="layui-row" style="padding:0px 0px 20px 0px;text-align:center">
+                    <div class="layui-col-xs3 layui-col-sm12 layui-col-md12 title">公司（厂）</div>
+                    <div class="title1 control layui-btn layui-btn-xs" onclick="filelist(1,1)">我的教材</div>
+                    <div class="title1 control layui-btn layui-btn-xs" onclick="student(1)">在线练习</div>
+                    <div class="title1 control layui-btn layui-btn-xs" onclick="student(1)">参加考试</div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm9 layui-col-md9 bor1 bor-topn" style="padding:20px 20px;">
+                <div style="height:auto;overflow:hidden;padding:0px 0px 20px 0px">
+                    <b>公司对工人、新工人等进行入场安全基本知识、规范、法制等教育的主要内容有：</b><br />
+                    <br />① 、党和国家的安全生产的方针政策。 <br />
+                    ② 、安全生产法规、标准和法制观念。  <br />
+                    ③ 、公司的安全生产规章制度和安全纪律。  <br />
+                    ④ 、公司安全生产形势和原来发生过的安全事故案例，以及今后应吸取的教训。 <br />
+                    ⑤ 、当发生事故后应及时抢救伤员、排除险情、保护好现场并及时报告工地负责人。
+                </div>
+                <div class="layui-row layui-col-space12 bor-top">
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip" >
+                        教育人：<span id="com_sign"></span>
+                    </div>
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        受教育人：<span class="real_name"></span>
+                    </div>
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        时间：<span id="com_time"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row bor bor-topn">
+            <div class="layui-col-xs12 layui-col-sm3 layui-col-md3">
+                <div class="layui-row" style="padding:0px 0px 20px 0px;text-align:center">
+                    <div class="layui-col-xs3 layui-col-sm12 layui-col-md12 title">项目部（车间）</div>
+                    <a class=" title1 control layui-btn layui-btn-xs" onclick="filelist(1,2)">我的教材</a>
+                    <a class="title1 control layui-btn layui-btn-xs" onclick="student(2)">在线练习</a>
+                    <a class="title1 control layui-btn layui-btn-xs" onclick="student(2)">参加考试</a>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm9 layui-col-md9 bor1 bor-topn" style="padding:20px 20px">
+                <div style="height:auto;overflow:hidden;padding:0px 0px 20px 0px">
+                    <b>项目部对工人、新工人等进行入场安全教育的主要内容有：</b> <br /><br />
+                    ① 、本工程的施工生产和安全基本知识。  <br />
+                    ② 、本工程施工或生产场地安全生产规章制度、规定、纪律和安全注意事项。  <br />
+                    ③ 、对机械设备、电气安全及高空作业的安全知识教育<br />
+                    ④ 、根据本工程具体情况进行防火、 防爆、紧急情况安全处理和安全疏散知识的教育 <br />
+                    ⑤ 、个人防护用品、工具使用基本知识教育。 <br />
+                    ⑥ 、贯彻“预防为主、安全第一”的安全意识教育。
+                </div>
+                <div class="layui-row layui-col-space12 bor-top">
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        教育人：<span id="b_sign"></span>
+                    </div>
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        受教育人：<span class="real_name"></span>
+                    </div>
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        时间：<span id="b_time"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row bor" >
+            <div class="layui-col-xs12 layui-col-sm3 layui-col-md3">
+                <div class="layui-row" style="padding:0px 0px 20px 0px;text-align:center">
+                    <div class="layui-col-xs3 layui-col-sm12 layui-col-md12 title">班组级教育</div>
+                    <a class="title1 control layui-btn layui-btn-xs" onclick="filelist(1,3)">我的教材</a>
+                    <a class="title1 control layui-btn layui-btn-xs" onclick="student(3)">在线练习</a>
+                    <a class="title1 control layui-btn layui-btn-xs" onclick="student(3)">参加考试</a>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm9 layui-col-md9 bor1 bor-topn" style="padding:20px 20px">
+                <div style="height:auto;overflow:hidden;padding:0px 0px 20px 0px">
+                    <b>钢筋班组长对组员入场安全教育的主要内容有：</b> <br /><br />
+                    ① 、钢筋工种的作业特点和安全操作规程的教育。  <br />
+                    ② 、钢筋班组安全活动的制度和纪律。  <br />
+                    ③ 、爱护和正确使用安全防护装置、防护设施和个人劳保用品。 <br />
+                    ④ 、钢筋工种岗位容易发生的事故、不安全因素及防护措施。 <br />
+                    ⑤ 、钢筋岗位的作业环境，使用钢筋机械设备的安全要求。
+                </div>
+                <div class="layui-row layui-col-space12 bor-top">
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        教育人：<span id="c_sign"></span>
+                    </div>
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        受教育人：<span class="real_name"></span>
+                    </div>
+                    <div class="layui-col-md4 layui-col-sm4 layui-col-xs4 layui-elip">
+                        时间：<span id="c_time"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl
+            , us_id = "@ViewBag.us_id";//员工的ID编号
+
+        ////
+        if (us_id == "") {
+            us_id = userInfo.data[0].us_id;
+            $(".control").fadeIn(100);
+            $("#com_sign").fadeOut(100);
+            $("#b_sign").fadeOut(100);
+            $("#c_sign").fadeOut(100);
+        } else {
+            $(".control").fadeOut(100);
+            $("#com_sign").fadeIn(100);
+            $("#b_sign").fadeIn(100);
+            $("#c_sign").fadeIn(100);
+        }
+
+        ///根据us_id查询员工三级教育卡
+        layui.use("layer", function () {
+            var layer = layui.layer;
+
+            
+            layer.load(1);
+            $.ajax({
+                url: configUrl + "/api/card_sign/gdt/Query?us_id=" + us_id,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    console.log("三级");
+                    console.log(res.data);
+                    layer.closeAll("loading");
+                    if (res.code == 0) {
+                        var d = res.data[0];
+                        $(".real_name").text(d.real_name);
+                        $("#com_sign").html(d.com_sign != "" ? d.com_sign : "<a style='color:#ff6a00' onclick='signs(" + d.card_id + ",1)'>签字</a>");
+                        $("#com_time").text(d.com_time != 0 ? timestampToTime2(d.com_time) : "");
+                        
+                        $("#c_sign").html(d.c_sign != "" ? d.c_sign:"<a style='color:#ff6a00' onclick='signs(" + d.card_id + ",3)'>签字</a>");
+                        $("#c_time").text(d.c_time != 0 ? timestampToTime2(d.c_time) : "");
+                        
+                        $("#b_sign").html(d.b_sign != "" ? d.b_sign:"<a style='color:#ff6a00' onclick='signs(" + d.card_id + ",2)' >签字</a>");
+                        $("#b_time").text(d.b_time!=0? timestampToTime2(d.b_time):"");
+                    } else {
+                        $("#demo").html("<div style='height:50px;line-height:50px;text-align:center;color:#999;font-size:22px'>没有创建三级教育卡</div>");
+                    }
+                }
+            });
+        });
+
+        function signs(card_id, jibie) {
+            //alert(userInfo.data[0].verify);
+            if (userInfo.data[0].verify < 4) {
+                var date = new Date();
+                var d = date.getFullYear() + "-" + (date.getMonth() + 1) +"-"+ date.getDate();
+
+                var objdata = {};
+                
+                var url = "";
+                if (jibie == 1) {
+                    url = configUrl+"/api/card_sign/gdt/Com_sign?card_id=" + card_id;
+                    objdata = {
+                        com_sign: userInfo.data[0].real_name,
+                        com_time: d
+                    };
+                }
+                if (jibie == 2) {
+                    url = configUrl + "/api/card_sign/gdt/B_sign?card_id=" + card_id;
+                    objdata = {
+                        b_sign: userInfo.data[0].real_name,
+                        b_time: d
+                    };
+                }
+                if (jibie == 3) {
+                    url = configUrl + "/api/card_sign/gdt/C_sign?card_id=" + card_id;
+                    objdata = {
+                        c_sign: userInfo.data[0].real_name,
+                        c_time: d
+                    };
+                }
+                layui.use("layer", function () {
+                    var layer = layui.layer;
+                    layer.load(1);
+                    $.ajax({
+                        url: url,
+                        type: "post",
+                        contentType: "application/json",
+                        data: JSON.stringify(objdata),
+                        success: function (res) {
+                            layer.closeAll("loading");
+                            if (res > 0) {
+                                if (jibie == 1) {
+                                    $("#com_sign").html(userInfo.data[0].real_name);
+                                    $("#com_time").html(d);
+                                }
+                                if (jibie == 2) {
+                                    $("#b_sign").html(userInfo.data[0].real_name);
+                                    $("#b_time").html(d);
+                                }
+                                if (jibie == 3) {
+                                    $("#c_sign").html(userInfo.data[0].real_name);
+                                    $("#c_time").html(d);
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                
+            }
+        }
+
+        function student(t_types) {
+            layui.use(["layer"], function () {
+                var layer = layui.layer;
+                layer.open({
+                    type: 2,
+                    title: "我的题库",
+                    content: "/Test/Mytest?t_types=" + t_types + "",
+                    area: ["96%", "90%"]
+                });
+            });
+        }
+
+        function filelist(filetype, jibie) {
+            layui.use(["layer"], function () {
+                var layer = layui.layer;
+                layer.open({
+                    type: 2,
+                    title: "我的题库",
+                    content: "/Test/FileList?filetype=" + filetype + "&jibie=" + jibie,
+                    area: ["96%", "90%"]
+                });
+            });
+        }
+        
+        
+    </script>
+</body>
+</html>

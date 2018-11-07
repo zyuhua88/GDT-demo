@@ -1,0 +1,238 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>deparmentList</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+            <ul class="layui-tab-title" id="bars">
+            </ul>
+            <div class="layui-tab-content"></div>
+        </div>
+        <div class="layui-row">
+            <button class="layui-btn" id="add_deparment">
+                <i class="layui-icon">&#xe608;</i> 在公司下创建部门
+            </button>
+        </div>
+        <table id="tb" lay-filter="mytable"></table>
+        <script type="text/html" id="barDemo">
+            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            <button class="layui-btn  layui-btn-xs layui-btn-radius" lay-event="class">
+                <i class="layui-icon">&#xe608;</i> 班组管理
+            </button>
+        </script>
+    </div>
+    <script>
+        var userInfo = parent.userInfo;
+        var configUrl = parent.configUrl;
+        var com_id = 0;
+        var b_id = 0;
+
+        var wind1 = "";
+        layui.use(["form", "layer", "table", "element"], function () {
+            var form = layui.form
+                , table = layui.table
+                , layer = layui.layer
+                , element = layui.element;
+            $.ajax({
+                url: configUrl + "/api/headoffice/gdt/QueryCompany?head_id=" + userInfo.data[0].head_id + "&com_id=" + userInfo.data[0].com_id + "&verify=" + userInfo.data[0].verify,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    com_id = res.data[0].com_id;
+                    getList(com_id);
+                    var html = "";
+                    for (var i = 0; i < res.data.length; i++) {
+                        if (i == 0) {
+                            html += "<li lay-id='" + res.data[i].com_id + "' class='layui-this'>" + res.data[i].com_name + "</li>";
+                        } else {
+                            html += "<li lay-id='" + res.data[i].com_id + "'>" + res.data[i].com_name + "</li>";
+                        }
+                    }
+                    $("#bars").html(html);
+                }
+            });
+
+            element.on('tab(docDemoTabBrief)', function (data) {
+                console.log(this.getAttribute('lay-id')); //当前Tab标题所在的原始DOM元素
+                com_id = this.getAttribute("lay-id");
+                getList(com_id);
+            });
+
+            //打开添加部门页面进行添加部门操作
+            $("#add_deparment").on("click", function () {
+                if (userInfo.data[0].verify < 2) {
+                    layer.open({
+                        type: 2,
+                        title: "添加部门",
+                        content: "/home/add_deparment",
+                        area: ["70%", "80%"]
+                    });
+                } else {
+                    layer.msg("只有公司级权限可以添加部门信息");
+                    return;
+                }
+                
+            });
+
+        });
+        //getList(com_id);
+        function getList(com_id) {
+            layui.use(["table", "layer"], function () {
+                var table = layui.table
+                    , layer = layui.layer;
+                table.render({
+                    elem: "#tb",
+                    height: "full-200",
+                    skin: "row",
+                    url: configUrl + "/api/company/gdt/querydeparment?com_id=" + com_id,
+                    page: true,
+                    limit:10,
+                    method: "post",
+                    contentType: "application/json",
+                    size: "sm",
+                    cellMinWidth:100,
+                    cols: [[
+                        { field: "b_name", title: "部门名称" },
+                        { field: "b_work_name", title: "工作职能" },
+                        { field: "b_work_desc", title: "职能描述" },
+                        { field: "c_count", title: "班组", width: 60, style: "text-align:right;background:#5FB878;color:#fff" },
+                        { field: "u_count", title: "员工", width: 60, style: "text-align:right;background:#5FB878;color:#fff" },
+                        { field: "com_name", title: "所属公司" },
+                        { title: "操作", fixed: "right", toolbar: "#barDemo", width: 220 },
+                    ]]
+                });
+
+                table.on("tool(mytable)", function (obj) {
+                    var data = obj.data; //获得当前行数据
+                    var layEvent = obj.event; //获得 lay-event 对应的值
+                    //console.log(data);
+                    
+
+                    if (layEvent == "edit") {
+                        if (userInfo.data[0].verify < 2) {
+                            layer.open({
+                                type: 2,
+                                title: "修改部门信息",
+                                content: "/home/add_deparment?b_id=" + data.b_id,
+                                area: ["70%", "80%"]
+                            });
+
+                        } else {
+                            layer.msg("权限不足，不能执行该操作", { icon: 2, shade: 0.5 });
+                            return;
+                        }
+                        
+                    }
+                    if (layEvent == "del") {
+                        if (userInfo.data[0].verify < 2) {
+                            layer.confirm('删除部门信息将同时删除配置的班组信息，但会保留员工信息，确定要执行该操作吗?', { icon: 3, title: '提示' }, function (index) {
+                                layer.load();
+                                $.ajax({
+                                    url: configUrl + "/api/company/gdt/deldeparment?b_id=" + data.b_id,
+                                    type: "post",
+                                    contentType: "application/json",
+                                    success: function (res) {
+                                        layer.closeAll("loading");
+                                        if (res.code == 0) {
+                                            layer.msg(res.msg, { icon: 1, shade: 0.5 });
+                                            obj.del();
+                                        } else {
+                                            layer.msg(res.msg, { icon: 2, shade: 0.5 });
+                                        }
+                                    }
+                                });
+
+                                layer.close(index);
+                            });
+
+                        } else {
+                            layer.msg("权限不足，不能执行该操作", { icon: 2, shade: 0.5 });
+                            return;
+                        }
+                        
+
+                    }
+                    if (layEvent == "class") {
+                        //alert(userInfo.data[0].verify);
+                        //alert(data.b_id);
+                        if (userInfo.data[0].verify <= 3 && userInfo.data[0].b_id == data.b_id) {
+                            b_id = data.b_id;
+                            layer.open({
+                                type: 2,
+                                title: false,
+                                content: "/home/classes?b_id=" + data.b_id,
+                                area: ["70%", "100%"],
+                                offset: "r",
+                                closeBtn: 0,                        // 动画
+                                shadeClose: true, 
+                                shade: 0.8,
+                                anim: 2,
+                                success: function (layero, index) {
+                                    var body = layer.getChildFrame('body', index);
+                                    wind1 = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                                },
+                                cancel: function (index, layero) {
+                                    getList(com_id);
+                                    layer.close(index);
+                                }
+                            });
+                        } else {
+                            layer.msg("您的权限不足，不能进行班组的操作！");
+                            return;
+                        }
+                        
+                    }
+                })
+            })
+            
+        }
+
+        ///供子页面（班级列表页面）调用，在班组列表页打开添加班组信息页
+        function addClass() {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                layer.open({
+                    type: 2,
+                    title: "添加班组",
+                    content: "/home/AddClass",
+                    area:["70%","80%"]
+                });
+            });
+        }
+
+        ///供子页面（班级列表页面）调用。在添加班级完成时调用该方法，更新班级列表
+        function changeClassList() {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                wind1.databind();
+            });
+        }
+        ///供子页面（班级列表页面）调用。打开修改班组信息对话框
+        function updateClass(c_id) {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                layer.open({
+                    type: 2,
+                    title: "添加班组",
+                    content: "/home/AddClass?c_id=" + c_id,
+                    area: ["70%", "80%"]
+                });
+            });
+        }
+    </script>
+</body>
+</html>

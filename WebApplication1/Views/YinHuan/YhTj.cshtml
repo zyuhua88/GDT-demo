@@ -1,0 +1,598 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>YhTj</title>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/js/echarts-all.js"></script>
+    <link href="~/css/hidden-danger.css" rel="stylesheet" />
+    <script src="~/vue.js"></script>
+    <style>
+        html, body {
+            background: #f0f0f0
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid" style="margin-top:12px;">
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-xs12" style="background:#fff;overflow-x:auto;min-height:200px">
+                <div class="hidden-danger" style="padding:14px 6px 14px 6px">
+                    <table id="hidden-danger" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">日期</th>
+                                <th colspan="20" class="f-size"><span style="font-weight:bold">近十天检查分类统计</span></th>
+                                <th rowspan="2">合计</th>
+                            </tr>
+                            <tr class="no-bg" style="font-size:11px">
+                                <th>文明施工</th>
+                                <th>物体打击</th>
+                                <th>车辆伤害</th>
+                                <th>机械伤害</th>
+                                <th>起重伤害</th>
+                                <th>触电</th>
+                                <th>淹溺</th>
+                                <th>灼烫</th>
+                                <th>火灾</th>
+                                <th>高处坠落</th>
+                                <th>坍塌</th>
+                                <th>冒顶片帮</th>
+                                <th>透水</th>
+                                <th>放炮</th>
+                                <th>火药爆炸</th>
+                                <th>瓦斯爆炸</th>
+                                <th>锅炉爆炸</th>
+                                <th>容器爆炸</th>
+                                <th>中毒和窒息</th>
+                                <th>其他伤害</th>
+                            </tr>
+                        </thead>
+                        <tbody id="apps" v-cloak>
+                            <tr v-for="item in items">
+                                <td style="font-size:10px;font-weight:100;color:#ff6a00">{{item.dates}}</td>
+                                <td>{{item.count1}}</td>
+                                <td>{{item.count2}}</td>
+                                <td>{{item.count3}}</td>
+                                <td>{{item.count4}}</td>
+                                <td>{{item.count5}}</td>
+                                <td>{{item.count6}}</td>
+                                <td>{{item.count7}}</td>
+                                <td>{{item.count8}}</td>
+                                <td>{{item.count9}}</td>
+                                <td>{{item.count10}}</td>
+                                <td>{{item.count11}}</td>
+                                <td>{{item.count12}}</td>
+                                <td>{{item.count13}}</td>
+                                <td>{{item.count14}}</td>
+                                <td>{{item.count15}}</td>
+                                <td>{{item.count16}}</td>
+                                <td>{{item.count17}}</td>
+                                <td>{{item.count18}}</td>
+                                <td>{{item.count19}}</td>
+                                <td>{{item.count20}}</td>
+                                <td style="font-weight:bold;text-align:center;">{{item.count1+item.count2+item.count3+item.count4+item.count5+item.count6+item.count7+item.count8+item.count9+item.count10+item.count11+item.count12+item.count13+item.count14+item.count15+item.count16+item.count17+item.count18+item.count19+item.count20}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <script>
+                        $("#hidden-danger tr").each(function () {
+                            $(this).find("td:eq(0)").css('background-color', '#eee');
+                            $(this).find("td:eq(21)").css('background-color', '#eee');
+
+                        });
+
+                        $('#hidden-danger tbody tr').each(function () {
+                            $(this).hover(function () {
+                                $(this).addClass('tr-over');
+                            }, function () {
+                                $(this).removeClass('tr-over');
+                            });
+                        })
+
+
+
+
+
+
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-fluid" style="margin-top:20px">
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-xs12 layui-col-sm6" >
+                <div style="background:#fff;">
+                    <div id="modthCount" style="min-height:500px;padding:30px 0px 20px 0px"></div>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6">
+                <div style="background:#fff;">
+                    <div id="today" style="min-height:500px;padding:30px 0px 20px 0px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl;
+        var users = userInfo.data[0];
+
+        $.ajax({
+            url: configUrl+"/api/yhtable/gdt/todayTj?verify=" + users.verify + "&head_id=" + users.head_id + "&com_id=" + users.com_id + "&b_id=" + users.b_id + "&c_id=" + users.c_id + "&us_id=" + users.us_id + "",
+            type: "post",
+            contentType: "application/json",
+            success: function (res) {
+                console.log("类型");
+                console.log(res);
+                //设置日期
+                var data = [];
+                var type = [];
+
+                var d = res.today;
+                if (d.length > 0) {
+                    var d_1 = {};
+                    d_1.dates = d[0].today;
+                    for (var i = 0; i < d.length; i++) {
+                        d_1.y_type += d[i].y_type;
+                    }
+                    d_1.count1 = patch("文明施工", d_1.y_type);
+                    d_1.count2 = patch("物体打击", d_1.y_type);
+                    d_1.count3 = patch("车辆伤害", d_1.y_type);
+                    d_1.count4 = patch("机械伤害", d_1.y_type);
+                    d_1.count5 = patch("起重伤害", d_1.y_type);
+                    d_1.count6 = patch("触电", d_1.y_type);
+                    d_1.count7 = patch("淹溺", d_1.y_type);
+                    d_1.count8 = patch("灼烫", d_1.y_type);
+                    d_1.count9 = patch("火灾", d_1.y_type);
+                    d_1.count10 = patch("高处坠落", d_1.y_type);
+                    d_1.count11 = patch("坍塌", d_1.y_type);
+                    d_1.count12 = patch("冒顶片帮", d_1.y_type);
+                    d_1.count13 = patch("透水", d_1.y_type);
+                    d_1.count14 = patch("放炮", d_1.y_type);
+                    d_1.count15 = patch("火药爆炸", d_1.y_type);
+                    d_1.count16 = patch("瓦斯爆炸", d_1.y_type);
+                    d_1.count17 = patch("锅炉爆炸", d_1.y_type);
+                    d_1.count18 = patch("容器爆炸", d_1.y_type);
+                    d_1.count19 = patch("中毒和窒息", d_1.y_type);
+                    d_1.count20 = patch("其他伤害", d_1.y_type);
+                    data.push(d_1);
+                }
+
+                var d1 = res.today_1;
+                if (d1.length > 0) {
+                    var d1_1 = {};
+                    d1_1.dates = d1[0].today;
+                    for (var i = 0; i < d1.length; i++) {
+                        d1_1.y_type += d1[i].y_type;
+                    }
+                    d1_1.count1 = patch("文明施工", d1_1.y_type);
+                    d1_1.count2 = patch("物体打击", d1_1.y_type);
+                    d1_1.count3 = patch("车辆伤害", d1_1.y_type);
+                    d1_1.count4 = patch("机械伤害", d1_1.y_type);
+                    d1_1.count5 = patch("起重伤害", d1_1.y_type);
+                    d1_1.count6 = patch("触电", d1_1.y_type);
+                    d1_1.count7 = patch("淹溺", d1_1.y_type);
+                    d1_1.count8 = patch("灼烫", d1_1.y_type);
+                    d1_1.count9 = patch("火灾", d1_1.y_type);
+                    d1_1.count10 = patch("高处坠落", d1_1.y_type);
+                    d1_1.count11 = patch("坍塌", d1_1.y_type);
+                    d1_1.count12 = patch("冒顶片帮", d1_1.y_type);
+                    d1_1.count13 = patch("透水", d1_1.y_type);
+                    d1_1.count14 = patch("放炮", d1_1.y_type);
+                    d1_1.count15 = patch("火药爆炸", d1_1.y_type);
+                    d1_1.count16 = patch("瓦斯爆炸", d1_1.y_type);
+                    d1_1.count17 = patch("锅炉爆炸", d1_1.y_type);
+                    d1_1.count18 = patch("容器爆炸", d1_1.y_type);
+                    d1_1.count19 = patch("中毒和窒息", d1_1.y_type);
+                    d1_1.count20 = patch("其他伤害", d1_1.y_type);
+                    data.push(d1_1);
+                }
+
+                var d2 = res.today_2;
+                if (d2.length > 0) {
+                    var d2_1 = {};
+                    d2_1.dates = d2[0].today;
+                    for (var i = 0; i < d2.length; i++) {
+                        d2_1.y_type += d2[i].y_type;
+                    }
+                    d2_1.count1 = patch("文明施工", d2_1.y_type);
+                    d2_1.count2 = patch("物体打击", d2_1.y_type);
+                    d2_1.count3 = patch("车辆伤害", d2_1.y_type);
+                    d2_1.count4 = patch("机械伤害", d2_1.y_type);
+                    d2_1.count5 = patch("起重伤害", d2_1.y_type);
+                    d2_1.count6 = patch("触电", d2_1.y_type);
+                    d2_1.count7 = patch("淹溺", d2_1.y_type);
+                    d2_1.count8 = patch("灼烫", d2_1.y_type);
+                    d2_1.count9 = patch("火灾", d2_1.y_type);
+                    d2_1.count10 = patch("高处坠落", d2_1.y_type);
+                    d2_1.count11 = patch("坍塌", d2_1.y_type);
+                    d2_1.count12 = patch("冒顶片帮", d2_1.y_type);
+                    d2_1.count13 = patch("透水", d2_1.y_type);
+                    d2_1.count14 = patch("放炮", d2_1.y_type);
+                    d2_1.count15 = patch("火药爆炸", d2_1.y_type);
+                    d2_1.count16 = patch("瓦斯爆炸", d2_1.y_type);
+                    d2_1.count17 = patch("锅炉爆炸", d2_1.y_type);
+                    d2_1.count18 = patch("容器爆炸", d2_1.y_type);
+                    d2_1.count19 = patch("中毒和窒息", d2_1.y_type);
+                    d2_1.count20 = patch("其他伤害", d2_1.y_type);
+                    data.push(d2_1);
+                }
+
+                var d3 = res.today_3;
+                if (d3.length > 0) {
+                    var d3_1 = {};
+                    d3_1.dates = d3[0].today;
+                    for (var i = 0; i < d3.length; i++) {
+                        d3_1.y_type += d3[i].y_type;
+                    }
+                    d3_1.count1 = patch("文明施工", d3_1.y_type);
+                    d3_1.count2 = patch("物体打击", d3_1.y_type);
+                    d3_1.count3 = patch("车辆伤害", d3_1.y_type);
+                    d3_1.count4 = patch("机械伤害", d3_1.y_type);
+                    d3_1.count5 = patch("起重伤害", d3_1.y_type);
+                    d3_1.count6 = patch("触电", d3_1.y_type);
+                    d3_1.count7 = patch("淹溺", d3_1.y_type);
+                    d3_1.count8 = patch("灼烫", d3_1.y_type);
+                    d3_1.count9 = patch("火灾", d3_1.y_type);
+                    d3_1.count10 = patch("高处坠落", d3_1.y_type);
+                    d3_1.count11 = patch("坍塌", d3_1.y_type);
+                    d3_1.count12 = patch("冒顶片帮", d3_1.y_type);
+                    d3_1.count13 = patch("透水", d3_1.y_type);
+                    d3_1.count14 = patch("放炮", d3_1.y_type);
+                    d3_1.count15 = patch("火药爆炸", d3_1.y_type);
+                    d3_1.count16 = patch("瓦斯爆炸", d3_1.y_type);
+                    d3_1.count17 = patch("锅炉爆炸", d3_1.y_type);
+                    d3_1.count18 = patch("容器爆炸", d3_1.y_type);
+                    d3_1.count19 = patch("中毒和窒息", d3_1.y_type);
+                    d3_1.count20 = patch("其他伤害", d3_1.y_type);
+                    data.push(d3_1);
+                }
+
+                var d4 = res.today_4;
+                if (d4.length > 0) {
+                    var d4_1 = {};
+                    d4_1.dates = d4[0].today;
+                    for (var i = 0; i < d4.length; i++) {
+                        d4_1.y_type += d4[i].y_type;
+                    }
+                    d4_1.count1 = patch("文明施工", d4_1.y_type);
+                    d4_1.count2 = patch("物体打击", d4_1.y_type);
+                    d4_1.count3 = patch("车辆伤害", d4_1.y_type);
+                    d4_1.count4 = patch("机械伤害", d4_1.y_type);
+                    d4_1.count5 = patch("起重伤害", d4_1.y_type);
+                    d4_1.count6 = patch("触电", d4_1.y_type);
+                    d4_1.count7 = patch("淹溺", d4_1.y_type);
+                    d4_1.count8 = patch("灼烫", d4_1.y_type);
+                    d4_1.count9 = patch("火灾", d4_1.y_type);
+                    d4_1.count10 = patch("高处坠落", d4_1.y_type);
+                    d4_1.count11 = patch("坍塌", d4_1.y_type);
+                    d4_1.count12 = patch("冒顶片帮", d4_1.y_type);
+                    d4_1.count13 = patch("透水", d4_1.y_type);
+                    d4_1.count14 = patch("放炮", d4_1.y_type);
+                    d4_1.count15 = patch("火药爆炸", d4_1.y_type);
+                    d4_1.count16 = patch("瓦斯爆炸", d4_1.y_type);
+                    d4_1.count17 = patch("锅炉爆炸", d4_1.y_type);
+                    d4_1.count18 = patch("容器爆炸", d4_1.y_type);
+                    d4_1.count19 = patch("中毒和窒息", d4_1.y_type);
+                    d4_1.count20 = patch("其他伤害", d4_1.y_type);
+                    data.push(d4_1);
+                }
+
+                var d5 = res.today_5;
+                if (d5.length > 0) {
+                    var d5_1 = {};
+                    d5_1.dates = d5[0].today;
+                    for (var i = 0; i < d5.length; i++) {
+                        d5_1.y_type += d5[i].y_type;
+                    }
+                    d5_1.count1 = patch("文明施工", d5_1.y_type);
+                    d5_1.count2 = patch("物体打击", d5_1.y_type);
+                    d5_1.count3 = patch("车辆伤害", d5_1.y_type);
+                    d5_1.count4 = patch("机械伤害", d5_1.y_type);
+                    d5_1.count5 = patch("起重伤害", d5_1.y_type);
+                    d5_1.count6 = patch("触电", d5_1.y_type);
+                    d5_1.count7 = patch("淹溺", d5_1.y_type);
+                    d5_1.count8 = patch("灼烫", d5_1.y_type);
+                    d5_1.count9 = patch("火灾", d5_1.y_type);
+                    d5_1.count10 = patch("高处坠落", d5_1.y_type);
+                    d5_1.count11 = patch("坍塌", d5_1.y_type);
+                    d5_1.count12 = patch("冒顶片帮", d5_1.y_type);
+                    d5_1.count13 = patch("透水", d5_1.y_type);
+                    d5_1.count14 = patch("放炮", d5_1.y_type);
+                    d5_1.count15 = patch("火药爆炸", d5_1.y_type);
+                    d5_1.count16 = patch("瓦斯爆炸", d5_1.y_type);
+                    d5_1.count17 = patch("锅炉爆炸", d5_1.y_type);
+                    d5_1.count18 = patch("容器爆炸", d5_1.y_type);
+                    d5_1.count19 = patch("中毒和窒息", d5_1.y_type);
+                    d5_1.count20 = patch("其他伤害", d5_1.y_type);
+                    data.push(d5_1);
+                }
+
+                var d6 = res.today_6;
+                if (d6.length > 0) {
+                    var d6_1 = {};
+                    d6_1.dates = d6[0].today;
+                    for (var i = 0; i < d6.length; i++) {
+                        d6_1.y_type += d6[i].y_type;
+                    }
+                    d6_1.count1 = patch("文明施工", d6_1.y_type);
+                    d6_1.count2 = patch("物体打击", d6_1.y_type);
+                    d6_1.count3 = patch("车辆伤害", d6_1.y_type);
+                    d6_1.count4 = patch("机械伤害", d6_1.y_type);
+                    d6_1.count5 = patch("起重伤害", d6_1.y_type);
+                    d6_1.count6 = patch("触电", d6_1.y_type);
+                    d6_1.count7 = patch("淹溺", d6_1.y_type);
+                    d6_1.count8 = patch("灼烫", d6_1.y_type);
+                    d6_1.count9 = patch("火灾", d6_1.y_type);
+                    d6_1.count10 = patch("高处坠落", d6_1.y_type);
+                    d6_1.count11 = patch("坍塌", d6_1.y_type);
+                    d6_1.count12 = patch("冒顶片帮", d6_1.y_type);
+                    d6_1.count13 = patch("透水", d6_1.y_type);
+                    d6_1.count14 = patch("放炮", d6_1.y_type);
+                    d6_1.count15 = patch("火药爆炸", d6_1.y_type);
+                    d6_1.count16 = patch("瓦斯爆炸", d6_1.y_type);
+                    d6_1.count17 = patch("锅炉爆炸", d6_1.y_type);
+                    d6_1.count18 = patch("容器爆炸", d6_1.y_type);
+                    d6_1.count19 = patch("中毒和窒息", d6_1.y_type);
+                    d6_1.count20 = patch("其他伤害", d6_1.y_type);
+                    data.push(d6_1);
+                }
+                
+                var d7 = res.today_7;
+                if (d7.length>0) {
+                    var d7_1 = {};
+                    d7_1.dates = d7[0].today;
+                    for (var i = 0; i < d7.length; i++) {
+                        d7_1.y_type += d7[i].y_type;
+                    }
+
+                    d7_1.count1 = patch("文明施工", d7_1.y_type);
+                    d7_1.count2 = patch("物体打击", d7_1.y_type);
+                    d7_1.count3 = patch("车辆伤害", d7_1.y_type) ? patch("车辆伤害", d7_1.y_type):0;
+                    d7_1.count4 = patch("机械伤害", d7_1.y_type);
+                    d7_1.count5 = patch("起重伤害", d7_1.y_type);
+                    d7_1.count6 = patch("触电", d7_1.y_type);
+                    d7_1.count7 = patch("淹溺", d7_1.y_type);
+                    d7_1.count8 = patch("灼烫", d7_1.y_type);
+                    d7_1.count9 = patch("火灾", d7_1.y_type);
+                    d7_1.count10 = patch("高处坠落", d7_1.y_type);
+                    d7_1.count11 = patch("坍塌", d7_1.y_type);
+                    d7_1.count12 = patch("冒顶片帮", d7_1.y_type);
+                    d7_1.count13 = patch("透水", d7_1.y_type);
+                    d7_1.count14 = patch("放炮", d7_1.y_type);
+                    d7_1.count15 = patch("火药爆炸", d7_1.y_type);
+                    d7_1.count16 = patch("瓦斯爆炸", d7_1.y_type);
+                    d7_1.count17 = patch("锅炉爆炸", d7_1.y_type);
+                    d7_1.count18 = patch("容器爆炸", d7_1.y_type);
+                    d7_1.count19 = patch("中毒和窒息", d7_1.y_type);
+                    d7_1.count20 = patch("其他伤害", d7_1.y_type);
+                    data.push(d7_1);
+                }
+
+                var d8 = res.today_8;
+                if (d8.length > 0) {
+                    var d8_1 = {};
+                    d8_1.dates = d8[0].today;
+                    for (var i = 0; i < d8.length; i++) {
+                        d8_1.y_type += d8[i].y_type;
+                    }
+                    d8_1.count1 = patch("文明施工", d8_1.y_type);
+                    d8_1.count2 = patch("物体打击", d8_1.y_type);
+                    d8_1.count3 = patch("车辆伤害", d8_1.y_type);
+                    d8_1.count4 = patch("机械伤害", d8_1.y_type);
+                    d8_1.count5 = patch("起重伤害", d8_1.y_type);
+                    d8_1.count6 = patch("触电", d8_1.y_type);
+                    d8_1.count7 = patch("淹溺", d8_1.y_type);
+                    d8_1.count8 = patch("灼烫", d8_1.y_type);
+                    d8_1.count9 = patch("火灾", d8_1.y_type);
+                    d8_1.count10 = patch("高处坠落", d8_1.y_type);
+                    d8_1.count11 = patch("坍塌", d8_1.y_type);
+                    d8_1.count12 = patch("冒顶片帮", d8_1.y_type);
+                    d8_1.count13 = patch("透水", d8_1.y_type);
+                    d8_1.count14 = patch("放炮", d8_1.y_type);
+                    d8_1.count15 = patch("火药爆炸", d8_1.y_type);
+                    d8_1.count16 = patch("瓦斯爆炸", d8_1.y_type);
+                    d8_1.count17 = patch("锅炉爆炸", d8_1.y_type);
+                    d8_1.count18 = patch("容器爆炸", d8_1.y_type);
+                    d8_1.count19 = patch("中毒和窒息", d8_1.y_type);
+                    d8_1.count20 = patch("其他伤害", d8_1.y_type);
+                    data.push(d8_1);
+                }
+
+                var d9 = res.today_9;
+                if (d9.length > 0) {
+                    var d9_1 = {};
+                    d9_1.dates = d9[0].today;
+                    for (var i = 0; i < d9.length; i++) {
+                        d9_1.y_type += d9[i].y_type;
+                    }
+                    d9_1.count1 = patch("文明施工", d9_1.y_type);
+                    d9_1.count2 = patch("物体打击", d9_1.y_type);
+                    d9_1.count3 = patch("车辆伤害", d9_1.y_type);
+                    d9_1.count4 = patch("机械伤害", d9_1.y_type);
+                    d9_1.count5 = patch("起重伤害", d9_1.y_type);
+                    d9_1.count6 = patch("触电", d9_1.y_type);
+                    d9_1.count7 = patch("淹溺", d9_1.y_type);
+                    d9_1.count8 = patch("灼烫", d9_1.y_type);
+                    d9_1.count9 = patch("火灾", d9_1.y_type);
+                    d9_1.count10 = patch("高处坠落", d9_1.y_type);
+                    d9_1.count11 = patch("坍塌", d9_1.y_type);
+                    d9_1.count12 = patch("冒顶片帮", d9_1.y_type);
+                    d9_1.count13 = patch("透水", d9_1.y_type);
+                    d9_1.count14 = patch("放炮", d9_1.y_type);
+                    d9_1.count15 = patch("火药爆炸", d9_1.y_type);
+                    d9_1.count16 = patch("瓦斯爆炸", d9_1.y_type);
+                    d9_1.count17 = patch("锅炉爆炸", d9_1.y_type);
+                    d9_1.count18 = patch("容器爆炸", d9_1.y_type);
+                    d9_1.count19 = patch("中毒和窒息", d9_1.y_type);
+                    d9_1.count20 = patch("其他伤害", d9_1.y_type);
+                    data.push(d9_1);
+                }
+                console.log(data);
+                var example1 = new Vue({
+                    el: '#apps',
+                    data: {
+                        items: data
+                    }
+                })
+                
+                
+            }
+        });
+
+        function patch(re, s) {
+            re = eval("/" + re + "/ig");
+            if (s.match(re)){
+                return s.match(re).length;
+            }
+            return 0;
+        }
+        //var s = 'tools.jb51.net';
+        //alert(patch('t', s)); //弹出2
+
+        $.ajax({
+            url: configUrl+"/api/yhtable/gdt/MonthTj?verify=" + users.verify + "&head_id=" + users.head_id + "&com_id=" + users.com_id + "&b_id=" + users.b_id + "&c_id=" + users.c_id + "&us_id=" + users.us_id + "&year=2018",
+            type: "post",
+            contentType: "application/json",
+            success: function (res) {
+                
+                var obj = { value: 0, name: "" };
+                var data = [];
+                data = [
+                    { value: res.data[0].m1, name: "一月(共计：" + res.data[0].m1+"次)" },
+                    { value: res.data[0].m2, name: "二月(共计：" + res.data[0].m2 +"次)" },
+                    { value: res.data[0].m3, name: "三月(共计：" + res.data[0].m3 +"次)" },
+                    { value: res.data[0].m4, name: "四月(共计：" + res.data[0].m4 +"次)" },
+                    { value: res.data[0].m5, name: "五月(共计：" + res.data[0].m5 +"次)" },
+                    { value: res.data[0].m6, name: "六月(共计：" + res.data[0].m6 +"次)" },
+                    { value: res.data[0].m7, name: "七月(共计：" + res.data[0].m7 +"次)" },
+                    { value: res.data[0].m8, name: "八月(共计：" + res.data[0].m8 +"次)" },
+                    { value: res.data[0].m9, name: "九月(共计：" + res.data[0].m9 +"次)" },
+                    { value: res.data[0].m10, name: "十月(共计：" + res.data[0].m10 +"次)" },
+                    { value: res.data[0].m11, name: "十一月(共计：" + res.data[0].m11 +"次)" },
+                    { value: res.data[0].m12, name: "十二月(共计：" + res.data[0].m12 +"次)" },
+                ];
+                
+                monthCount(data);
+            }
+        });
+        function monthCount(data) {
+            var myChart = echarts.init(document.getElementById('modthCount'));
+            
+            option = {
+                title: {
+                    text: '每月检查数据量',
+                    subtext: '',
+                    x: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                legend: {
+                    x: 'center',
+                    y: 'bottom',
+                    data: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+                },
+                //toolbox: {
+                //    show: false,
+                //    feature: {
+                //        mark: { show: false },
+                //        dataView: { show: false, readOnly: false },
+                //        magicType: {
+                //            show: false,
+                //            type: ['pie', 'funnel']
+                //        },
+                //        restore: { show: false },
+                //        saveAsImage: { show: false }
+                //    }
+                //},
+                calculable: true,
+                series: [
+                    {
+                        name: '每月数据量',
+                        type: 'pie',
+                        radius: [30, 110],
+                        center: ['50%', '50%'],
+                        roseType: 'area',
+                        data: data
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+        
+
+        $.ajax({
+            url: configUrl+"/api/yhtable/gdt/YhCountTen?verify=" + users.verify + "&head_id=" + users.head_id + "&com_id=" + users.com_id + "&b_id=" + users.b_id + "&c_id=" + users.c_id + "&us_id=" + users.us_id + "",
+            type: "post",
+            contentType: "application/json",
+            success: function (res) {
+                console.log("十天的每天的数据量");
+                console.log(res);
+                var data = [];
+                var title = [];
+                if (res.data.length) {
+                    for (var i = 0; i < res.data.length; i++){
+                        data.push({ value: res.data[i].count, name: res.data[i].today });
+                        title.push(res.data[i].today);
+                    }
+                }
+                today(title,data);
+            }
+        });
+
+        function today(title,data) {
+            var myChart = echarts.init(document.getElementById('today'));
+            option = {
+                title: {
+                    text: '近十天的检查数据量',
+                    subtext: '',
+                    x: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                //legend: {
+                //    orient: 'vertical',
+                //    left: 'left',
+                //    data: title
+                //},
+                series: [
+                    {
+                        name: '数据量',
+                        type: 'pie',
+                        radius: '55%',
+                        center: ['50%', '60%'],
+                        data: data,
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

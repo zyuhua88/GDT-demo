@@ -1,0 +1,160 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>FileList</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0
+        }
+
+        .content {
+            background: #fff;
+        }
+
+        .title {
+            overflow: hidden
+        }
+        .hidd {
+            overflow: hidden;
+            height: 34px;
+            line-height: 34px;
+        }
+        .bor {
+            width:96%;margin:0 auto;
+            border-bottom: 1px dotted #2F4056;padding:5px 0px;
+        }
+        .content {
+            width: 94%;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 4px;
+            min-height: 300px
+        }
+    </style>
+</head>
+<body>
+    <div style="height:20px"></div>
+    <div class="layui-fluid content" id="content">
+
+    </div>
+
+    <script type="text/html" id="contentJs">
+        {{# layui.each(d.list,function(index,item){ }}
+        <div class="layui-row layui-col-space10 bor">
+            <div class="layui-col-xs1 layui-col-sm1 layui-col-md1 hidd">{{item.types}}</div>
+            <div class="layui-col-xs6 layui-col-sm4 layui-col-md5 layui-elip" style="color:#2F4056;cursor:pointer;height:34px;line-height:34px">{{item.title}}</div>
+            <div class="layui-col-xs3 layui-col-sm2 layui-col-md1 hidd layui-hide-xs">{{item.real_name}}</div>
+            <div class="layui-col-xs3 layui-col-sm2 layui-col-md2 hidd layui-hide-xs">{{item.updatetime}}</div>
+            <div class="layui-col-xs2 layui-col-sm1 layui-col-md1 hidd" style="color:#ff0000;text-align:center"><i class="layui-icon">&#xe628;</i> {{item.lookcount}}</div>
+            <div class="layui-col-xs2 layui-col-sm1 layui-col-md1 hidd layui-hide-xs" style="color:#0094ff;cursor:pointer;text-align:center"><a href="{{item.filepath}}"><i class="layui-icon">&#xe601;</i> 下载</a></div>
+            <div class="layui-col-xs3 layui-col-sm1 layui-col-md1 hidd" style="color:#0094ff;cursor:pointer;text-align:center"><a onclick="documentView('{{item.filepath}}','{{item.type}}','{{item.id}}')"><i class="layui-icon">&#xe601;</i> 预览</a></div>
+        </div>
+        {{# }); }}
+        {{# if(d.list.length===0){ }}
+        <div style="color:#999;font-size:16px;line-height:50px;text-align:center">无数据</div>
+        {{# } }}
+
+    </script>
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl,
+            values = "@ViewBag.value",
+            filetype = "@ViewBag.filetype",
+            jibie = "@ViewBag.jibie";
+        
+        layui.use(["form", "layer","laytpl"], function () {
+            var form = layui.form
+                ,layer = layui.layer
+                , laytpl = layui.laytpl;
+
+            var obj = {
+                list:[]
+            };
+
+            getData(values,1,20);
+            function getData(val, page, count) {
+                layer.load(1);
+                
+                var url = configUrl+"/api/filelist/gdt/Query?head_id=" + userInfo.data[0].head_id + "&value=" + val + "&types=&filetype=0&jibie=" + jibie + "&page=" + page + "&count=" + count + "";
+                if (filetype=="" && jibie=="") {
+                    url = configUrl + "/api/filelist/gdt/Query?head_id=" + userInfo.data[0].head_id + "&value=" + val + "&types=&page=" + page + "&count=" + count + "";
+                }
+                $.ajax({
+                    url: url,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        console.log(res.data);
+                        if (res.code == 0) {
+                            for (var i = 0; i < res.data.length; i++){
+                                res.data[i].updatetime = timestampToTime2(res.data[i].updatetime);
+                                res.data[i].filepath = configUrl + "/files/" + res.data[i].filepath;
+                                res.data[i].type = res.data[i].types;
+                                var imgs = res.data[i].types;
+                                var icon = "";
+                                if (imgs == "doc" || imgs == "docx") {
+                                    icon = "word.png";
+                                }
+                                else if (imgs == "xlsx" || imgs == "xls") {
+                                    icon = "excel.png";
+                                }
+                                else if (imgs == "pdf") {
+                                    icon = "pdf.png";
+                                }
+                                else if (imgs == "ppt" || imgs == "pptx") {
+                                    icon = "ppt.png";
+                                }
+                                else if (imgs == "video" || imgs == "video") {
+                                    icon = "video.png";
+                                } else {
+                                    icon = "rar.png";
+                                }
+                                res.data[i].types = "<div style='width:22px;height:29px;margin:0 auto'><img src='/font/" + icon + "' style='width:18px' /></div>";
+                                
+                                
+                            }
+                            obj.list = res.data;
+                            
+                        }
+                    }
+                });
+            }
+
+            var getTpl = contentJs.innerHTML
+                , view = document.getElementById('content');
+            laytpl(getTpl).render(obj, function (html) {
+                view.innerHTML = html;
+            });
+        });
+
+        function documentView(filepath, type,id) {
+            
+            if (type != "pdf") {
+                var path = "http://view.officeapps.live.com/op/view.aspx?src=" + encodeURI(filepath);
+                
+                window.open("/test/documentview?src=" + path + "&fileid=" + id + "&usid=" + userInfo.data[0].us_id);
+            } else {
+                window.location.href = filepath;
+            }
+            
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Test_List</title>
+    <link href="css/layui.css" rel="stylesheet" />
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <!--<script src="~/Scripts/jquery-1.10.2.min.js"></script>-->
+    <!--<script src="js/jquery.js"></script>-->
+    <script src="layui.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <style>
+        html,body{width:100%;height:100%;background:#f0f0f0}
+    </style>
+</head>
+<body>
+    <div class="layui-fluid" style="background:#f0f0f0;margin:18px auto;"> 
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-xs12 layui-col-sm8 layui-col-md8">
+                <div class="layui-card">
+                    <div class="layui-card-header">题库列表</div>
+                    <div class="layui-card-body" style="min-height:280px">
+                        <table class="layui-table" lay-skin="nob">
+                            <colgroup class="layui-row">
+                                <col class="layui-hide-xs layui-col-xs8 layui-col-sm1 layui-col-md1 ">
+                                <col class="layui-col-xs6 layui-col-sm4 layui-col-md4">
+                                <col class="layui-col-xs6 layui-col-sm2 layui-col-md2">
+                                <col class="layui-hide-xs layui-col-xs2 layui-col-sm2 layui-col-md2">
+                                <col class="layui-hide-xs layui-col-xs3 layui-col-sm3 layui-col-md3">
+                            </colgroup>
+                            <tbody id="testList">
+                                @*这里加载异步数据*@
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="layui-row" style="border-top:1px solid #f0f0f0;text-align:right;padding:10px 18px;">
+                        <button class="layui-btn layui-btn-primary layui-btn-xs" id="AddTestClassify">
+                            <i class="layui-icon">&#xe654; 创建题库</i>
+                        </button>
+                        <span style="font-size:12px;color:#009688;padding-left:20px;cursor:pointer" id="TestAll">展开更多……</span>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="layui-col-xs12 layui-col-sm4 layui-col-md4">
+                <div style="background:#fff;padding:18px 18px;min-height:280px">
+                	<div class="layui-card">
+					  <div class="layui-card-header">资料下载</div>
+					  <div class="layui-card-body">
+					  	<h4>名称：</h4>
+					    <p style="text-align: center;">
+					    	<img src="img/filemb_03.png" width="100px" />
+					    	<!--<i class="fa fa-file-excel-o" aria-hidden="true" style="font-size: 32px;"></i>-->
+					    </p>
+					    <br />
+					    <p style="text-align: center;">
+					    	<i class="fa fa-arrow-down" aria-hidden="true"></i>
+					    </p>
+					    
+					    <p style="text-align: center;">
+					    	<button class="layui-btn layui-btn-primary">点击下载模板</button>
+					    	
+					    </p>
+					  </div>
+					</div>
+					
+					<div class="layui-row">
+						<div class="layui-col-xs6">
+							用户评分： <span>4分</span>
+						</div>
+						<div class="layui-col-xs6">
+							模板大小： <span>1.98MB</span>
+						</div>
+						<br /><br />
+						<div class="layui-col-xs6">
+							模板厂商： <span>4中安谷</span>
+						</div>
+						<div class="layui-col-xs6">
+							模板授权： <span>免费</span>
+						</div>
+					</div>					
+                </div>
+            </div>
+        </div>
+        
+        <div class="layui-row layui-col-space10">
+        	<div class="layui-col-xs12" style="border: 1px solid lightgray; min-height: 100px;">
+        		<div id="main" style=" height:600px;"></div>
+        	</div>
+        </div>
+        
+        
+    </div>
+
+    <script>
+        var configUrl = parent.configUrl
+            , userInfo = parent.userInfo;
+
+        getTest();
+        function getTest() {
+            layui.use(["layer", "element"], function () {
+                var layer = layui.layer
+                    , element = layui.element;
+                $.ajax({
+                    url: configUrl + "/api/test_classify/gdt/query?head_id=" + userInfo.data[0].head_id + "&pages=1&count=7",
+                    type: "post",
+                    contentType: "application/json",
+                    success: function (res) {
+                        console.log(res.data);
+                        var html = "";
+                        if (res.code == 0) {
+                            for (var i = 0; i < res.data.length; i++) {
+                                var is_send = "未发布";
+                                var sendColor = "#ff6a00";
+                                if (res.data[i].is_send == 1) {
+                                    is_send = "已发布";
+                                    sendColor = "#5FB878";
+                                }
+                                var t_types = "";
+                                switch (res.data[i].t_types) {
+                                    case 0:
+                                        t_types = "普通试题";
+                                        break;
+                                    case 1:
+                                        t_types = "厂级";
+                                        break;
+                                    case 2:
+                                        t_types = "车间级";
+                                        break;
+                                    case 3:
+                                        t_types = "班组级";
+                                        break
+                                }
+                                html += '<tr>' +
+                                    '<td class="layui-hide-xs"> ' + (i + 1) + '</td>' +
+                                    '<td onclick="UpdateTest(' + res.data[i].id + ')" style="color:#009688;cursor:pointer">' + res.data[i].t_name + '</td>' +
+                                    '<td style="text-align:center;">' + res.data[i].tcount + ' 题</td>' +
+                                    '<td class="layui-hide-xs" style="text-align:center;color:' + sendColor + '">' + t_types + '</td>' +
+                                    '<td class="layui-hide-xs" style="text-align:center" >' +
+                                    '<span class="layui-icon layui-icon-add-circle-fine" title="添加试题" onclick="AddTests(' + res.data[i].id + ')" style="color:#2F4056;font-weight:bold;padding:0px 3px"> </span>' +
+                                    '<span class="layui-icon layui-icon-release" title="发布" onclick="sendTest(' + res.data[i].id + ')" style="color:#009688;padding:0px 3px"> </span>' +
+                                    '<span class="layui-icon layui-icon-close" title="删除" onclick="delTest(' + res.data[i].id + ')" style="color:#FF5722;padding:0px 3px"> </span>' +
+                                    '</td>' +
+                                    '</tr>';
+                            }
+                        } else {
+                            html = "<tr>" +
+                                "<td></td>" +
+                                "<td>没有发布题库数据</td>" +
+                                "</tr>";
+                        }
+                        $("#testList").html(html);
+                    }
+                });
+                
+                
+                
+            });
+        }
+        
+        $.ajax({
+                	type:"post",
+                	url:"https://gdtapi.gooceer.com/api/test/gdt/QueryTj?us_id=2",
+                	async:true,
+                	success:function(res){
+                		console.log(res);
+                		echats();
+                	}
+                });
+
+        function delTest(id) {
+            layui.use("layer", function () {
+                layer.confirm('删除题库将同时删除该题库对应的试题，您确定执行该操作吗?', { icon: 3, title: '提示' }, function (index) {
+                    //do something
+                    layer.load();
+                    $.ajax({
+                        url: configUrl + "/api/test_classify/gdt/del?id=" + id,
+                        type: "post",
+                        contentType: "application/json",
+                        success: function (res) {
+                            layer.closeAll("loading");
+                            if (res.code == 0) {
+                                getTest();
+                            } else {
+                                layer.msg(res.msg, {icon:2,time:2000,shade:0.5});
+                            }
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+        }
+
+        function UpdateTest(id) {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                layer.open({
+                    type: 2,
+                    title: "修改题库基本信息",
+                    content: "/Test/AddTestClassify?id=" + id,
+                    area:["85%","92%"]
+                });
+            });
+        }
+
+        function AddTests(id) {
+            layui.use(["layer"], function () {
+                var layer = layui.layer;
+                layer.open({
+                    type: 2,
+                    shade: 0.2,
+                    title: false, //不显示标题
+                    content: "/Test/Upload_File?classify_id=" + id,
+                    area:["260px","160px"]
+                });
+            });
+            
+        }
+
+
+        function sendTest(id) {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                layer.open({
+                    type: 2,
+                    title: "选择为哪个班级分配试题",
+                    content: "/home/GroupbyClass?testid=" + id,
+                    area:["86%","90%"]
+                });
+            });
+        }
+        
+
+        layui.use(["layer"], function () {
+            var layer = layui.layer;
+            $("#AddTestClassify").on("click", function () {
+                layer.open({
+                    type: 2,
+                    title: "创建题库",
+                    content: "/Test/AddTestClassify",
+                    area: ["85%","92%"]
+                });
+            });
+
+            $("#TestAll").on("click", function () {
+                var index = layer.open({
+                    type: 2,
+                    title: "",
+                    content: "/Test/TestListAll",
+                    area: ["96%", "96%"]
+                });
+            });
+            
+
+            
+        });
+        
+        function echats(date,data){
+        	var myChart = echarts.init(document.getElementById('main'));
+			
+			option = {
+			    title: {
+			        text: '历史成绩一览',
+			        subtext: ''
+			    },
+			    tooltip: {
+			        trigger: 'axis'
+			    },
+			    legend: {
+			        data:['历史成绩']
+			    },
+			    toolbox: {
+			        show: true,
+			        feature: {
+			            dataZoom: {
+			                yAxisIndex: 'none'
+			            },
+			            dataView: {readOnly: false},
+			            magicType: {type: ['line', 'bar']},
+			            restore: {},
+			            saveAsImage: {}
+			        }
+			    },
+			    xAxis:  {
+			        type: 'category',
+			        boundaryGap: false,
+			        data: date
+			    },
+			    yAxis: {
+			        type: 'value',
+			        axisLabel: {
+			            formatter: '{value} °C'
+			        }
+			    },
+			    series: [
+			        
+			        {
+			            name:'成绩',
+			            type:'line',
+			            data:data,
+			            markPoint: {
+			                data: [
+			                    {name: '周最低', value: -2, xAxis: 1, yAxis: -1.5}
+			                ]
+			            },
+			            markLine: {
+			                data: [
+			                    {type: 'average', name: '平均值'},
+			                    [{
+			                        symbol: 'none',
+			                        x: '90%',
+			                        yAxis: 'max'
+			                    }, {
+			                        symbol: 'circle',
+			                        label: {
+			                            normal: {
+			                                position: 'start',
+			                                formatter: '最大值'
+			                            }
+			                        },
+			                        type: 'max',
+			                        name: '最高点'
+			                    }]
+			                ]
+			            }
+			        }
+			    ]
+			};
+
+		    
+		    // 使用刚指定的配置项和数据显示图表。
+	        myChart.setOption(option);
+        }
+        
+    </script>
+</body>
+</html>
+

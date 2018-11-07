@@ -1,0 +1,132 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Add_company</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-fluid" style="margin-top:30px">
+        <form class="layui-form" lay-filter="form">
+
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">所属集团</div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <input type="text" name="head_name" readonly style="border:0px" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">公司名称</div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <input type="text" name="com_name" placeholder="请输入子公司名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">办公地址</div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <input type="text" name="work_address" placeholder="请输入办公地址" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">公司规模</div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <select name="com_size" lay-filter="size">
+                        <option value="" class="layui-hide-sm layui-show-xs">请选择公司规模</option>
+                        <option value="100人以下">100人以下</option>
+                        <option value="100-300人">100-300人</option>
+                        <option value="300-500人">300-500人</option>
+                        <option value="500-800人">500-800人</option>
+                        <option value="800-1000人">800-1000人</option>
+                        <option value="1000人以上">1000人以上</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">
+                </div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <button class="layui-btn" lay-submit lay-filter="send">立即提交</button>
+                </div>
+
+            </div>
+
+            
+        </form>
+        
+    </div>
+
+    <script>
+        var com_id = "@ViewBag.com_id";
+        var configUrl = parent.configUrl;
+        layui.use(["form", "layer"], function () {
+            var form = layui.form
+                , layer = layui.layer;
+            if (com_id != "" && com_id != null) {
+                $.ajax({
+                    url: configUrl+"/api/headoffice/gdt/querychildcompany?com_id=" + com_id,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        form.val("form", {
+                            "com_name": res.data[0].com_name,
+                            "com_size": res.data[0].com_size,
+                            "work_address": res.data[0].work_address
+                        });
+                        form.render();
+                    }
+                });
+            }
+
+            form.val("form",{
+                "head_name": parent.userInfo.data[0].head_name
+            });
+            form.render();
+
+            form.on("submit(send)", function (obj) {
+                layer.load();
+                obj.field.head_id = parent.userInfo.data[0].head_id;
+                console.log(obj.field);
+                var url = configUrl + "/api/headoffice/gdt/AddCompany";
+                if (com_id != "" && com_id != null) {
+                    url = configUrl + "/api/headoffice/gdt/UpdateCompany?com_id=" + com_id;
+                }
+                $.ajax({
+                    url: url,
+                    type: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res.code == "A0000") {
+                            layer.msg(res.msg, { icon: 1, time: 2500, shade: 0.5 });
+                            parent.getList();
+                            setTimeout(function () {
+                                //当你在iframe页面关闭自身时
+                                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                parent.layer.close(index); //再执行关闭 
+                            }, 2500);
+                        } else {
+                            layer.msg(res.msg, { icon: 2, time: 2500, shade: 0.5 });
+                        }
+                    }
+                });
+                return false;
+            });
+            
+        });
+    </script>
+</body>
+</html>

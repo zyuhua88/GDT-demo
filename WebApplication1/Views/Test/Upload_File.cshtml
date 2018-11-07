@@ -1,0 +1,61 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Upload_File</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <style>
+    </style>
+
+</head>
+<body>
+    <div class="layui-upload-drag" id="test10">
+        <i class="layui-icon"></i>
+        <p>点击上传，或将文件拖拽到此处</p>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl
+            , classify_id = "@ViewBag.classify_id";
+        //alert(classify_id);
+        //var url="api/test/gdt/upload_test";
+        layui.use(["form", "layer","upload"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , upload = layui.upload;
+
+            //执行实例
+            var uploadInst = upload.render({
+                elem: '#test10' //绑定元素
+                , accept: "file"
+                , url: configUrl + '/api/test/gdt/upload_test?classify_id=' + classify_id //上传接口
+                , before: function (obj) { //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+                    layer.load(1); //上传loading
+                }
+                , done: function (res) {
+                    layer.closeAll("'loading'");
+                    //alert(res);
+                    //上传完毕回调
+                    layer.alert(res.msg, {
+                        skin: 'layui-layer-molv' //样式类名
+                        , closeBtn: 0
+                    }, function () {
+                        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                        parent.layer.close(index); //再执行关闭 
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

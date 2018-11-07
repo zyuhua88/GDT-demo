@@ -1,0 +1,148 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AddClass</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-fluid" style="padding:40px 40px">
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">所属部门</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="b_name" class="layui-input" style="border:0px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">班组名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="c_name" required lay-verify="required" placeholder="请输入部门名称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">职能名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="c_work_name" required lay-verify="required" placeholder="请输入部门职能名称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">职能描述</label>
+                        <div class="layui-input-block">
+                            <textarea name="c_work_desc" placeholder="请输入部门职能描述" class="layui-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit lay-filter="send">提交数据</button>
+                            <button id="reset" type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo;
+        var configUrl = parent.configUrl;
+        var b_id = parent.b_id;
+        var c_id = "@ViewBag.c_id";
+        layui.use(["form", "layer"], function () {
+            var form = layui.form
+                , layer = layui.layer;
+            $.ajax({
+                url: configUrl + "/api/company/gdt/query_deparment?b_id=" + b_id,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    form.val("form", {
+                        "b_name": res.data[0].b_name
+                    });
+                    form.render();
+                }
+            });
+
+
+
+            if (c_id != "" && c_id != null) {
+                $("#reset").fadeOut(10);
+                $.ajax({
+                    url: configUrl+ "/api/deparment/gdt/queryclass?c_id=" + c_id,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        console.log(res);
+                        form.val("form", {
+                            "c_name": res.data[0].c_name,
+                            "c_work_name": res.data[0].c_work_name,
+                            "c_work_desc": res.data[0].c_work_desc
+                        });
+                        form.render();
+                    }
+                });
+            }
+
+            form.on("submit(send)", function (obj) {
+                obj.field.b_id = b_id;
+                layer.load();
+                var urls = configUrl + "/api/deparment/gdt/addclass";
+                if (c_id != "" && c_id != null) {
+                    urls = configUrl + "/api/deparment/gdt/updateclass?c_id=" + c_id;
+                }
+                $.ajax({
+                    url: urls,
+                    type: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res.code == 0) {
+                            ///添加成功，首先关闭当前页，然后加载班组列表页的班级列表
+                            layer.msg(res.msg, { icon: 1, shade: 0.5 }, function () {
+                                parent.changeClassList();
+                                //当你在iframe页面关闭自身时
+                                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                parent.layer.close(index); //再执行关闭 
+                            });
+                        } else {
+                            layer.msg(res.msg, { icon: 1, shade: 0.5 });
+                        }
+                    }
+                });
+                return false;
+            });
+        });
+
+        
+    </script>
+</body>
+</html>

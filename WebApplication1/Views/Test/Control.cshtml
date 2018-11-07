@@ -1,0 +1,284 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Control</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/js/zagJs.js"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0
+        }
+
+        .btns {
+            margin-left: 8px;
+            cursor: pointer
+        }
+    </style>
+</head>
+<body>
+
+    <div style="height:1%"></div>
+    <div class="layui-fluid" style="width:96%;background:#fff;height:95%;overflow-y:auto;padding:0">
+        <div style="height:2px"></div>
+
+        <div style="width:98%;margin:0 auto">
+            <script type="text/html" id="barDemo">
+                <div class="layui-row">
+                    <div class="layui-col-xs6 layui-col-sm2 layui-col-md1">
+                        <span class="btns" style="color:#1E9FFF" lay-event="alldata"><i class="layui-icon">&#xe656;</i> 全部</span>
+                    </div>
+                    <div class="layui-col-xs6 layui-col-sm2 layui-col-md1">
+                        <span class="btns" lay-event="fenpei"><i class="layui-icon">&#xe702;</i> 未分配</span>
+                    </div>
+                    <div class="layui-col-xs6 layui-col-sm2 layui-col-md1">
+                        <span class="btns" lay-event="state"><i class="layui-icon">&#xe62c;</i> 进行中</span>
+                    </div>
+                    <div class="layui-col-xs6 layui-col-sm2 layui-col-md1">
+                        <span class="btns" style="color:#ff6a00" lay-event="over"><i class="layui-icon">&#x1007;</i> 已完成</span>
+                    </div>
+                    
+                    
+
+                </div>
+            </script>
+            <table id="tb" lay-filter="tb"></table>
+        </div>
+
+    </div>
+
+
+    
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl
+            , status = 0;
+
+        layui.use(["table", "layer", "laydate"], function () {
+            var table = layui.table
+                , layer = layui.layer
+                , laydate = layui.laydate;
+
+            GetData(status);
+            function GetData(status) {
+                var d = userInfo.data[0];
+                layer.load(1);
+                $.ajax({
+                    url: configUrl+"/api/card_sign/gdt/Query?verify=" + d.verify + "&head_id=" + d.head_id + "&com_id=" + d.com_id + "&b_id=" + d.b_id + "&c_id=" + d.c_id + "&us_id=" + d.us_id + "&status=" + status,
+                    type: "post",
+                    contentType: "application/json",
+                    success: function (res) {
+                        console.log(res);
+                        layer.closeAll("loading");
+                        table.render({
+                            elem: "#tb",
+                            row: "nob",
+                            height: "full-80",
+                            data: res.data,
+                            size: "sm",
+                            cellMinWidth: 100,
+                            toolbar: '#barDemo',
+                            cols: [[
+                                { field: "real_name", title: "姓名", width: 120 }
+                                , {
+                                    field: "com_sign", title: "厂级签字", width: 100,
+                                    templet: function (d) {
+                                        if (d.com_sign == null) {
+                                            return "";
+                                        } else {
+                                            return d.com_sign;
+                                        }
+                                    }
+                                }
+                                , {
+                                    field: "com_time", title: "时间",
+                                    templet: function (d) {
+                                        if (d.com_time == null || d.com_time == 0) {
+                                            return "";
+                                        } else {
+                                            return timestampToTime2(d.com_time);
+                                        }
+                                    }
+                                }
+                                , {
+                                    field: "b_sign", title: "车间签字", width: 100,
+                                    templet: function (d) {
+                                        if (d.b_sign == null) {
+                                            return "";
+                                        } else {
+                                            return d.b_sign;
+                                        }
+                                    }
+                                }
+                                , {
+                                    field: "b_time", title: "时间",
+                                    templet: function (d) {
+                                        if (d.b_time == null || d.com_time == 0) {
+                                            return "";
+                                        } else {
+                                            return timestampToTime2(d.b_time);
+                                        }
+                                    }
+                                }
+                                , {
+                                    field: "c_sign", title: "班组签字",
+                                    templet: function (d) {
+                                        if (d.c_sign == null) {
+                                            return "";
+                                        } else {
+                                            return d.c_sign;
+                                        }
+                                    }
+                                }
+                                , {
+                                    field: "c_time", title: "时间",
+                                    templet: function (d) {
+                                        if (d.c_time == null || d.c_time == 0) {
+                                            return "";
+                                        } else {
+                                            return timestampToTime2(d.c_time);
+                                        }
+                                    }
+                                }
+                                , {
+                                    field: "c_sign", title: "状态", align: "center", width: 150, event: "addcard", templet: function (d) {
+                                        if (d.c_sign == null && d.b_sign == null) {
+                                            return "<span class='layui-btn layui-btn-xs layui-btn-normal'><i class='layui-icon'>&#xe608;</i> 生成教育卡</span>";
+                                        } else if (d.c_time > 0) {
+                                            return "<span style='color:#2F4056'>已完成</span>";
+                                        } else {
+                                            return "<span style='color:#FF5722'>进行中</span>";
+                                        }
+                                    }
+                                }
+                                ,
+                                {
+                                    title: "学习统计", event: "cart", align: "center", width: 100,
+                                    templet: function (e) {
+                                        return "<span class='layui-icon' style='color:#ff6a00'>&#xe629; 查看</span>"
+                                    }
+                                }
+                                , {
+                                    title: "审批", align: "center", width: 130, event: "sign", templet: function (d) {
+                                        if (d.c_sign == null && d.c_tim == null) {
+                                            return "";
+                                        } else if (d.c_time > 0 && d.b_time > 0 && d.com_id > 0) {
+                                            return "<span class='layui-icon' style='color:#2F4056'>&#xe605; 已完成</span>";
+                                        } else {
+                                            return "<span class='layui-icon' style='color:#FF5722'>&#xe6b2; 去审批</span>";
+                                        }
+                                    }
+                                }
+                            ]]
+                        });
+
+
+                        table.on("tool(tb)", function (obj) {
+                            var event = obj.event;
+                            //alert(obj.data.us_id);
+                            if (event == "cart") {
+                                layer.open({
+                                    type: 2,
+                                    title: "查看学习进度情况",
+                                    content: "/Tj/TjView?us_id=" + obj.data.us_id,
+                                    area: ["90%", "90%"]
+                                });
+                            }
+
+                            if (event == "addcard") {
+
+                                if (obj.data.com_sign != null && obj.data.b_sign != null) {
+
+                                } else {
+                                    layer.open({
+                                        type: 1,
+                                        title: "选择三级教育有效期",
+                                        content: '<div style="width:300px;height:100px;margin:30px 30px"><input type="text" class="layui-input" readonly id="end_time">' +
+                                        '<blockquote style="margin-top:20px" class="layui-elem-quote"> 请选择有效期限，长期有效则不填写</blockquote></div>',
+                                        btn: ["生成三级教育卡", "关 闭"],
+                                        yes: function (value, index, layero) {
+                                            //按钮【按钮一】的回调
+                                            var end_time = $("#end_time").val();
+                                            var us_id = obj.data.us_id;
+                                            layer.load(1);
+                                            $.ajax({
+                                                url: configUrl + "/api/card_sign/gdt/Add?end_time=" + end_time + "&us_id=" + us_id,
+                                                type: "post",
+                                                contentType: "application/json",
+                                                success: function () {
+                                                    layer.closeAll();
+                                                    GetData(status);
+                                                }
+                                            });
+                                        },
+                                        btn2: function (index, layero) {
+                                            layer.close(index);
+                                        }
+                                    });
+                                    laydate.render({
+                                        elem: '#end_time' //指定元素
+                                    });
+                                }
+                            }
+
+                            if (event == "sign") {
+                                if (obj.data.b_time == 0 || obj.data.c_time == 0 || obj.data.com_time == 0) {
+                                    layer.open({
+                                        type: 2,
+                                        title: obj.data.real_name + " 的三级教育卡",
+                                        content: "/Test/TestCard?us_id=" + obj.data.us_id,
+                                        area: ["90%", "90%"]
+                                    });
+                                }
+                            }
+                        });
+
+                        table.on("toolbar(tb)", function (obj) {
+                            //alert(objs);
+                            var checkStatus = table.checkStatus(obj.config.id);
+                            var data = checkStatus.data;
+                            //alert(checkStatus.data);
+                            var event = obj.event;
+                            if (event == "alldata") {
+                                status = 0;
+                                GetData(status);
+                            }
+                            if (event == "fenpei") {
+                                status = 3;
+                                GetData(status);
+                            }
+
+                            if (event == "state") {
+                                status = 2;
+                                GetData(status);
+                            }
+
+                            if (event == "over") {
+                                status = 1;
+                                GetData(status);
+
+                            }
+
+
+                        });
+
+                    }
+                });
+            }
+
+
+        });
+    </script>
+
+</body>
+</html>

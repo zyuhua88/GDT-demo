@@ -1,0 +1,509 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>在线管理系统</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <link rel="stylesheet" href="/frame/layui/css/layui.css">
+    <link rel="stylesheet" href="/frame/static/css/style.css">
+    <link rel="icon" href="/frame/static/image/code.png">
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <style>
+    </style>
+</head>
+<body class="skin-2">
+
+    <!-- layout admin -->
+    <div class="layui-layout layui-layout-admin">
+        <!-- 添加skin-1类可手动修改主题为纯白，添加skin-2类可手动修改主题为蓝白 -->
+        <!-- header -->
+        <div class="layui-header my-header layui-col-xs1" style="overflow:hidden">
+            <a href="index.html">
+                <img id="logo" class="my-header-logo" style="height:40px;width:auto" src="" alt="logo">
+                <div id="head_name" class="my-header-logo"></div>
+            </a>
+            <div class="my-header-btn">
+                <button class="layui-btn layui-btn-small btn-nav"><i class="layui-icon">&#xe65f; </i></button>
+            </div>
+
+            <!-- 顶部左侧添加选项卡监听 -->
+            <ul class="layui-nav" lay-filter="side-top-left"></ul>
+
+            <!-- 顶部右侧添加选项卡监听 -->
+            <ul class="layui-nav my-header-user-nav" lay-filter="side-top-right">
+                <li class="layui-nav-item" id="addHead" style="display:none">
+                    <a href="javascript:;"><span class="layui-icon layui-icon-add-1" style="color:#fff"> </span> 添加集团信息 </a>
+                </li>
+
+                <li class="layui-nav-item">
+                    <a class="name" href="javascript:;"><span class="layui-icon">&#xe613; </span> <span id="real_name">Admin</span> </a>
+                </li>
+                <li class="layui-nav-item">
+                    <a class="name" href="javascript:;" id="changepwd"><span class="layui-icon">&#xe673; </span> 修改密码 </a>
+                </li>
+                <li class="layui-nav-item">
+                    <a class="name" id="unlogin" href="javascript:;"><span class="layui-icon">&#xe9aa; </span> 退出 </a>
+                </li>
+
+            </ul>
+
+        </div>
+        <!-- side -->
+        <div class="layui-side my-side">
+            <div class="layui-side-scroll">
+                <!-- 左侧主菜单添加选项卡监听 -->
+                <ul id="dh" class="layui-nav layui-nav-tree" lay-filter="side-main">
+
+                    <li class="layui-nav-item layui-nav-itemed head">
+                        <a href="javascript:;"><i class="layui-icon">&#xe628;</i>系统管理</a>
+                        <dl class="layui-nav-child">
+                            <dd class="head_1"><a href="javascript:;" href-url="/home/updateLogo"><i class="layui-icon">&#xe621;</i>自定义logo</a></dd>
+                            <dd class="head_2"><a href="javascript:;" href-url="/home/verify"><i class="layui-icon">&#xe621;</i>用户权限</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item company">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>组织架构</a>
+                        <dl class="layui-nav-child">
+                            <dd class="company_1"><a href="javascript:;" href-url="/home/company_list"><i class="layui-icon">&#xe621;</i>公司（厂）</a></dd>
+                            <dd class="company_2"><a href="javascript:;" href-url="/home/deparmentList"><i class="layui-icon">&#xe621;</i>部门/项目</a></dd>
+                            <dd class="company_3"><a href="javascript:;" href-url="/home/userList"><i class="layui-icon">&#xe621;</i>员工管理</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item deparment">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>安全检查</a>
+                        <dl class="layui-nav-child">
+                            <dd class="deparment_1"><a href="javascript:;" href-url="/YinHuan/index"><i class="layui-icon">&#xe621;</i>风险控制台</a></dd>
+                            <dd class="deparment_2"><a href="javascript:;" href-url="/YinHuan/yhlist"><i class="layui-icon">&#xe621;</i>检查记录</a></dd>
+                            <dd class="deparment_2"><a href="javascript:;" href-url="/yinhuan/yhtj"><i class="layui-icon">&#xe621;</i>检查统计</a></dd>
+                            @*<dd><a href="javascript:;" href-url="demo/form.html"><i class="layui-icon">&#xe621;</i>信息与通知</a></dd>
+        <dd><a href="javascript:;" href-url="demo/table.html"><i class="layui-icon">&#xe621;</i>等级限定</a></dd>*@
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item deparment">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>员工培训</a>
+                        <dl class="layui-nav-child">
+                            <dd class="deparment_1"><a href="javascript:;" href-url="/Test/Test_List"><i class="layui-icon">&#xe621;</i>试题管理</a></dd>
+                            <dd class="deparment_2"><a href="javascript:;" href-url="/project/train_project"><i class="layui-icon">&#xe621;</i>培训计划及组织</a></dd>
+                            <dd class="deparment_3"><a href="javascript:;" href-url="/test/Control"><i class="layui-icon">&#xe621;</i>三级教育</a></dd>
+                            @*<dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>岗前培训</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>复工教育</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>持证上岗</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>继续教育</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>四新教育</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>培训绩效管理</a></dd>*@
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item users">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>在线学习</a>
+                        <dl class="layui-nav-child">
+
+                            <dd><a href="javascript:;" href-url="/Test/Test_File?filetype=0&jibie=0"><i class="layui-icon">&#xe621;</i>学习资料</a></dd>
+                            <dd><a href="javascript:;" href-url="/Test/TestCard"><i class="layui-icon">&#xe621;</i>我的教育卡</a></dd>
+                            <dd><a href="javascript:;" href-url="/Test/Mytest"><i class="layui-icon">&#xe621;</i>我的题库</a></dd>
+                            <dd><a href="javascript:;" href-url="/Test/TestError"><i class="layui-icon">&#xe621;</i>我的错题库</a></dd>
+                            <dd><a href="javascript:;" href-url="/Tj/TjView"><i class="layui-icon">&#xe621;</i>统计与分析</a></dd>
+                        </dl>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+        <!--side2-->
+        <div class="layui-side layui-hide-xs layui-hide" id="mydh"  style="overflow-y:auto">
+            <div class="layui-side-scroll">
+                <!-- 左侧主菜单添加选项卡监听 -->
+                <ul id="dh1" class="layui-nav layui-nav-tree">
+
+                    <li class="layui-nav-item layui-nav-itemed head">
+                        <a href="javascript:;"><i class="layui-icon">&#xe628;</i>系统管理</a>
+                        <dl class="layui-nav-child">
+                            <dd class="head_1" onclick="actions(this)"><a href-url="/home/updateLogo"><i class="layui-icon">&#xe621;</i>自定义logo</a></dd>
+                            <dd class="head_2" onclick="actions(this)"><a href-url="/home/verify"><i class="layui-icon">&#xe621;</i>用户权限</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item company">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>组织架构</a>
+                        <dl class="layui-nav-child">
+                            <dd class="company_1" onclick="actions(this)"><a href-url="/home/company_list"><i class="layui-icon">&#xe621;</i>公司（厂）</a></dd>
+                            <dd class="company_2" onclick="actions(this)"><a href-url="/home/deparmentList"><i class="layui-icon">&#xe621;</i>部门/项目</a></dd>
+                            <dd class="company_3" onclick="actions(this)"><a href-url="/home/userList"><i class="layui-icon">&#xe621;</i>员工管理</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item deparment">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>安全检查</a>
+                        <dl class="layui-nav-child">
+                            <dd class="deparment_1" onclick="actions(this)"><a href-url="/YinHuan/index"><i class="layui-icon">&#xe621;</i>风险控制台</a></dd>
+                            <dd class="deparment_2" onclick="actions(this)"><a href-url="/YinHuan/yhlist"><i class="layui-icon">&#xe621;</i>检查记录</a></dd>
+                            <dd class="deparment_3" onclick="actions(this)"><a href-url="/yinhuan/yhtj"><i class="layui-icon">&#xe621;</i>检查统计</a></dd>
+                            @*<dd><a href="javascript:;" href-url="demo/form.html"><i class="layui-icon">&#xe621;</i>信息与通知</a></dd>
+        <dd><a href="javascript:;" href-url="demo/table.html"><i class="layui-icon">&#xe621;</i>等级限定</a></dd>*@
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item deparment">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>员工培训</a>
+                        <dl class="layui-nav-child">
+                            <dd class="deparment_1" onclick="actions(this)"><a href-url="/Test/Test_List"><i class="layui-icon">&#xe621;</i>试题管理</a></dd>
+                            <dd class="deparment_2" onclick="actions(this)"><a href-url="/project/train_project"><i class="layui-icon">&#xe621;</i>培训计划及组织</a></dd>
+                            <dd class="deparment_3" onclick="actions(this)"><a href-url="/test/Control"><i class="layui-icon">&#xe621;</i>三级教育</a></dd>
+                            @*<dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>岗前培训</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>复工教育</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>持证上岗</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>继续教育</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>四新教育</a></dd>
+                                <dd><a href="javascript:;" href-url="../HtmlPage1.html"><i class="layui-icon">&#xe621;</i>培训绩效管理</a></dd>*@
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item users">
+                        <a href="javascript:;"><i class="layui-icon">&#xe620;</i>在线学习</a>
+                        <dl class="layui-nav-child">
+
+                            <dd onclick="actions(this)"><a href-url="/Test/Test_File?filetype=0&jibie=0"><i class="layui-icon">&#xe621;</i>学习资料</a></dd>
+                            <dd onclick="actions(this)"><a href-url="/Test/TestCard"><i class="layui-icon">&#xe621;</i>我的教育卡</a></dd>
+                            <dd onclick="actions(this)"><a href-url="/Test/Mytest"><i class="layui-icon">&#xe621;</i>我的题库</a></dd>
+                            <dd onclick="actions(this)"><a href-url="/Test/TestError"><i class="layui-icon">&#xe621;</i>我的错题库</a></dd>
+                            <dd onclick="actions(this)"><a href-url="/Tj/TjView"><i class="layui-icon">&#xe621;</i>统计与分析</a></dd>
+                        </dl>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+
+        <!-- body -->
+        <div class="layui-body my-body" style="overflow-y:hidden">
+            <div class="layui-tab layui-tab-card my-tab" lay-filter="card" lay-allowClose="true">
+                <ul class="layui-tab-title layui-hide-xs">
+                    <li class="layui-this" lay-id="1"><span><i class="layui-icon">&#xe638;</i>欢迎页</span></li>
+                </ul>
+                <div class="layui-tab-content" style="overflow-y:hidden">
+                    <div id="ii" class="layui-tab-item layui-show" style="-webkit-overflow-scrolling:touch;overflow-y:auto;">
+                        <iframe id="iframe" src="" frameborder="0" style="height:99%"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- footer -->
+        <div class="layui-footer my-footer " id="footer">
+            <span style="padding:0px 20px">兰谷企业管理咨询（上海）有限公司合作开发</span>
+        </div>
+    </div>
+
+
+    <!-- 右键菜单 -->
+    <div class="my-dblclick-box none">
+        <table class="layui-tab dblclick-tab">
+            <tr class="card-refresh">
+                <td><i class="layui-icon">&#x1002;</i>刷新当前标签</td>
+            </tr>
+            <tr class="card-close">
+                <td><i class="layui-icon">&#x1006;</i>关闭当前标签</td>
+            </tr>
+            <tr class="card-close-all">
+                <td><i class="layui-icon">&#x1006;</i>关闭所有标签</td>
+            </tr>
+        </table>
+    </div>
+
+
+
+    <div id="changes" style="display:none">
+        <div style="height:30px"></div>
+        <div class="layui-fluid" style="max-width:600px">
+            <form class="layui-form" lay-filter="form">
+
+                <div class="layui-row" style="margin:15px auto">
+                    <div class="layui-col-xs12 layui-col-sm4 layui-col-md3 layui-hide-xs" style="text-align:right;line-height:34px">
+                        登录用户名&nbsp;&nbsp;
+                    </div>
+                    <div class="layui-col-xs12 layui-col-sm7 layui-col-md8">
+                        <input type="text" name="username" required lay-verify="required" placeholder="请确认您的用户名" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-row" style="margin:15px auto">
+                    <div class="layui-col-xs12 layui-col-sm4 layui-col-md3 layui-hide-xs" style="text-align:right;line-height:34px">
+                        手机号&nbsp;&nbsp;
+                    </div>
+                    <div class="layui-col-xs12 layui-col-sm7 layui-col-md8">
+                        <input type="text" name="tel" required lay-verify="required" placeholder="请确认您的手机号码" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-row" style="margin:15px auto">
+                    <div class="layui-col-xs12 layui-col-sm4 layui-col-md3 layui-hide-xs" style="text-align:right;line-height:34px">
+                        新密码&nbsp;&nbsp;
+                    </div>
+                    <div class="layui-col-xs12 layui-col-sm7 layui-col-md8">
+                        <input type="text" name="pwd" required lay-verify="required" placeholder="请输入新密码" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+
+                <div class="layui-row">
+                    <div style="text-align:center">
+                        <button class="layui-btn" lay-submit lay-filter="send">
+                            <i class="layui-icon">&#xe609;</i> 立即提交
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/frame/layui/layui.js"></script>
+    <script type="text/javascript" src="/frame/static/js/vip_comm.js"></script>
+    <script src="~/vue.js"></script>
+    <script src="~/js/menu.js"></script>
+    <script type="text/javascript">
+
+        document.addEventListener('touchmove', function (event) { event.preventDefault(); }, false);
+        //存储加载的用户权限信息
+        var userInfo = {};
+        var configUrl = "https://gdtapi.gooceer.com";
+        var menu = null;//用户的的权限模版
+        GetUserInfo();
+
+        function actions(str) {
+
+            layui.use(["layer"], function () {
+
+                var layer = layui.layer;
+
+                layer.load(1);
+                var iframe = document.createElement("iframe");
+                //var iframe = $("#iframe");
+                //iframe.attr("src", $(str).find("a").attr("href-url"));
+                iframe.src = $(str).find("a").attr("href-url");
+                if (iframe.attachEvent) {
+                    iframe.attachEvent("onload", function () {
+
+                    });
+                } else {
+                    iframe.onload = function () {
+
+                    };
+                }
+                $("#ii").html(iframe);
+                layer.closeAll();
+            });
+
+        }
+
+
+        //获取登录用户的权限列表
+        function GetUserInfo() {
+            //加载用户的权限
+            $.ajax({
+                url: configUrl+"/api/verify/gdt/getusers?usid=@ViewBag.usid",
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+
+                    userInfo = res;
+                    //用户菜单配置
+                    getMenu(userInfo.data[0].us_id);
+                    
+
+                    //console.log(userInfo);
+                    document.getElementById("iframe").src = "/home/welcome";
+                    //如果为中安谷系统管理员
+                    if (res.data[0].head_id == 0 && res.data[0].verify == 0) {
+                        $("#addHead").fadeIn(100);
+                        $("#logo").css("display", "none");
+                        $("#head_name").text("中安谷官方后台");
+                    } else {
+                        //设置集团logo及集团名称
+                        $("#logo").attr("src", configUrl + userInfo.data[0].head_logo);
+                        $("#head_name").text(userInfo.data[0].head_name);
+                        $("#real_name").text(userInfo.data[0].real_name);
+                    }
+                }
+            });
+        }
+
+        
+        function getMenu(usid) {
+            $.ajax({
+                url: configUrl+"/api/user_menu/gdt/Query?us_id=" + usid,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    if (res.code == 0) {
+                        //{"parents":[{"name":"系统管理","id":0},{"name":"组织架构","id":1},{"name":"安全检查","id":2},{"name":"员工培训","id":3},{"name":"在线学习","id":4}],"children":[[{"id":0,"name":"自定义logo","checked":false},{"id":1,"name":"用户权限","checked":false}],[{"id":2,"name":"公司（厂）","checked":false},{"id":3,"name":"部门/项目","checked":false},{"id":4,"name":"员工管理","checked":false}],[{"id":5,"name":"风险控制台","checked":false},{"id":6,"name":"检查记录","checked":false},{"id":7,"name":"统计","checked":false}],[{"id":8,"name":"试题管理","checked":false},{"id":9,"name":"培训计划及组织","checked":false},{"id":10,"name":"三级教育","checked":false}],[{"id":11,"name":"学习资料","checked":false},{"id":12,"name":"我的教育卡","checked":false},{"id":13,"name":"我的题库","checked":false},{"id":14,"name":"我的错题库","checked":false},{"id":15,"name":"统计与分析","checked":false}]]}
+                        menu = JSON.parse(res.data[0].menu);
+                        //console.log(JSON.parse(res.data[0].menu));
+                        SetMenu(menu);
+                    } else {
+                        if (userInfo.data[0].verify == 1) {
+                            $(".head").css("display", "none");
+                            $(".company_1").css("display", "none");
+                            $(".company").addClass("layui-nav-itemed");
+                        }
+                        if (userInfo.data[0].verify == 2) {
+                            $(".head").css("display", "none");
+                            $(".company_1").css("display", "none");
+                            $(".company").addClass("layui-nav-itemed");
+                        }
+                        if (userInfo.data[0].verify == 3) {
+                            $(".head").css("display", "none");
+                            $(".company_1").css("display", "none");
+                            $(".company_2").css("display", "none");
+                            $(".company").addClass("layui-nav-itemed");
+                        }
+                        if (userInfo.data[0].verify == 4) {
+                            $(".head").css("display", "none");
+                            $(".deparment").css("display", "none");
+                            $(".company").css("display", "none");
+                            $(".users").addClass("layui-nav-itemed");
+                        }
+                    }
+                }
+            });
+        }
+
+        function SetMenu(menu) {
+            console.log('menu');
+            console.log(menu);
+            //console.log(menu.permissionData.children.length);
+            for (var i = 0; i < menu.children.length; i++) {
+                //console.log(menu.permissionData.children[i].length);
+                var c = 0;
+                for (var j = 0; j < menu.children[i].length; j++) {
+                    //console.log(menu.permissionData.children[i][j].name);
+                    if (menu.children[i][j].checked) {
+                        c += 1;
+                        $("#dh").find("li").eq(i).find("dl").find("dd").eq(j).fadeIn(10);
+                    } else {
+                        $("#dh").find("li").eq(i).find("dl").find("dd").eq(j).fadeOut(10);
+                    }
+                }
+                if (c > 0) {
+                    $("#dh").find("li").eq(i).css("display", "block");
+                } else {
+                    $("#dh").find("li").eq(i).css("display", "none");
+                }
+            }
+        }
+
+        //{"parents":[{"name":"系统管理","id":0},{"name":"组织架构","id":1},{"name":"安全检查","id":2},{"name":"员工培训","id":3},{"name":"在线学习","id":4}],"children":[[{"id":0,"name":"自定义logo","checked":true},{"id":1,"name":"用户权限","checked":true}],[{"id":2,"name":"公司（厂）","checked":true},{"id":3,"name":"部门/项目","checked":true},{"id":4,"name":"员工管理","checked":true}],[{"id":5,"name":"风险控制台","checked":true},{"id":6,"name":"检查记录","checked":true},{"id":7,"name":"统计","checked":true}],[{"id":8,"name":"试题管理","checked":true},{"id":9,"name":"培训计划及组织","checked":true},{"id":10,"name":"三级教育","checked":true}],[{"id":11,"name":"学习资料","checked":true},{"id":12,"name":"我的教育卡","checked":true},{"id":13,"name":"我的题库","checked":true},{"id":14,"name":"我的错题库","checked":true},{"id":15,"name":"统计与分析","checked":false}]]}
+       
+
+        layui.use(["layer", "table","form"], function () {
+            var layer = layui.layer,
+                table = layui.table
+                , form = layui.form;
+
+
+            $("#addHead").on("click", function () {
+                layer.open({
+                    type: 2,
+                    content: "/home/addHead",
+                    title: "添加集团信息",
+                    area: ["70%", "90%"]
+                });
+            });
+            //退出登录
+            $("#unlogin").on("click", function () {
+                window.location.href = "/home/unlogin";
+            })
+            ////修改密码
+            $("#changepwd").on("click", function () {
+                ChangePwd();
+            });
+
+            form.on("submit(send)", function (obj) {
+                layer.load(1);
+                username = obj.field.username;
+                tel = obj.field.tel;
+                pwd = obj.field.pwd;
+
+                $.ajax({
+                    url: configUrl+"/api/users/gdt/ChangePwd?username=" + username + "&tel=" + tel + "&pwd=" + pwd,
+                    type: "post",
+                    contentType: "application/json",
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res == 100) {
+                            layer.msg("您的信息有误，密码修改失败！");
+                        } else {
+                            layer.msg("密码修改成功！请重新登录", function () {
+                                window.location.href = "/home/index";
+                            });
+                        }
+                    }
+                });
+                return false;
+            });
+
+        });
+
+        function ChangePwd() {
+            layui.use(["layer"], function () {
+                var layer = layui.layer;
+                var width = $(document.body).outerWidth();
+                var area = ["440px", "400px"];
+                if (width < 440) {
+                    area = [width-40+"px","400px"];
+                }
+                layer.open({
+                    type: 1,
+                    title: "修改密码",
+                    content: $("#changes").html(),
+                    area: area
+                });
+            });
+        }
+
+        var visibilitychange = "visibilitychange";
+        var hidden = document.hidden;
+
+        if (typeof document.hidden != "undefined") {
+            visibilitychange = "visibilitychange";
+            hidden = document.hidden;
+        }
+
+        var hiddenindex = 1;
+
+
+
+        document.addEventListener(visibilitychange, function () {
+            if (document.hidden) {
+                hiddenindex = 0;
+            } else {
+                hiddenindex = 1;
+            }
+        });
+
+        var indexTimes = 0;
+        setInterval(function () {
+            if (hiddenindex == 1) {
+                indexTimes++;
+                var pro = indexTimes%60;
+                if (pro == 0) {
+                    $.ajax({
+                        url: configUrl + "/api/users/gdt/on_line?us_id=" + userInfo.data[0].us_id,
+                        type: "post",
+                        contentType: "application/json",
+                        success: function () { }
+                    });
+                }
+            }
+        },1000);
+
+
+        
+
+    </script>
+</body>
+</html>

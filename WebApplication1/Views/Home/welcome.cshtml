@@ -1,0 +1,488 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layuiAdmin 控制台主页一</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <link href="~/css/admin.css" rel="stylesheet" />
+    <script type="text/javascript" src="/frame/static/js/vip_comm.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <script src="~/js/timeuser.js"></script>
+</head>
+<body>
+    
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md8">
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-col-md6">
+                        <div class="layui-card">
+                            <div class="layui-card-header">快捷方式</div>
+                            <div class="layui-card-body">
+                                <div class="layui-carousel layadmin-carousel layadmin-shortcut">
+                                    <div>
+                                        <ul class="layui-row layui-col-space10">
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="component/progress/index.html" id="sysbtn">
+                                                    <i class="layui-icon layui-icon-component"></i>
+                                                    <cite>组织架构</cite>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="app/workorder/list.html" id="verifybtn">
+                                                    <i class="layui-icon layui-icon-password"></i>
+                                                    <cite>员工权限</cite>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="home/homepage1.html" id="changepwd">
+                                                    <i class="layui-icon layui-icon-vercode"></i>
+                                                    <cite>重置密码</cite>
+                                                </a>
+                                            </li>
+                                            
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="home/homepage2.html">
+                                                    <i class="layui-icon layui-icon-edit"></i>
+                                                    <cite>完善信息</cite>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="component/layer/list.html">
+                                                    <i class="layui-icon layui-icon-survey"></i>
+                                                    <cite>问题与建议</cite>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs3">
+                                                <a layadmin-event="im">
+                                                    <i class="layui-icon layui-icon-log"></i>
+                                                    <cite>任务计划</cite>
+                                                </a>
+                                            </li>
+
+                                            <li class="layui-col-xs3">
+                                                <a lay-href="user/user/list.html">
+                                                    <i class="layui-icon layui-icon-chart-screen"></i>
+                                                    <cite>统计中心</cite>
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <div class="layui-card">
+                            <div class="layui-card-header">待办事项</div>
+                            <div class="layui-card-body">
+                                <div class="layui-carousel layadmin-carousel layadmin-backlog">
+                                    <div>
+                                        <ul class="layui-row layui-col-space10">
+                                            <li class="layui-col-xs6">
+                                                <a class="layadmin-backlog-body">
+                                                    <h3 class="layui-icon" style="font-size:13px;font-weight:bold">&#xe681; 我发布的</h3>
+                                                    <p><cite id="c1" style="cursor:pointer">0</cite></p>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs6">
+                                                <a class="layadmin-backlog-body">
+                                                    <h3 class="layui-icon" style="font-size:13px;font-weight:bold">&#xe60e; 待处理项</h3>
+                                                    <p><cite id="c2" style="cursor:pointer">0</cite></p>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs6">
+                                                <a class="layadmin-backlog-body">
+                                                    <h3 class="layui-icon" style="font-size:13px;font-weight:bold">&#xe630; 已审核项</h3>
+                                                    <p><cite id="c3">0</cite></p>
+                                                </a>
+                                            </li>
+                                            <li class="layui-col-xs6">
+                                                <a  class="layadmin-backlog-body">
+                                                    <h3 class="layui-icon" style="font-size:13px;font-weight:bold">&#xe600; 已整改项</h3>
+                                                    <p><cite id="c4">0</cite></p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header">数据概览</div>
+                            <div class="layui-card-body">
+
+                                <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade" lay-filter="LAY-index-dataview">
+                                    <table class="layui-table">
+                                        <colgroup>
+                                            <col width="40%">
+                                            <col>
+                                        </colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td>累计在线时长</td>
+                                                <td id="us_online" style="color:#009688">
+                                                    
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>累计参考次数</td>
+                                                <td id="scoreCount">
+                                                    
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>我的平均成绩</td>
+                                                <td id="scoreAvg">
+                                                    
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>最低得分</td>
+                                                <td id="scoreMin"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>最高得分</td>
+                                                <td id="scoreMax" style="padding-bottom: 0;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>当前排名</td>
+                                                <td id="pming" style="padding-bottom: 0;color:#009688"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>最后一次登录时间</td>
+                                                <td id="login_time" style="padding-bottom: 0;color:#393D49"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-col-md4">
+                <div class="layui-card">
+                    <div class="layui-card-header">系统信息</div>
+                    <div class="layui-card-body layui-text">
+                        <table class="layui-table">
+                            <colgroup>
+                                <col width="100">
+                                <col>
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <td>运行时长</td>
+                                    <td style="color:#ff0000">
+                                        @ViewBag.online 分钟
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>在线人数</td>
+                                    <td>
+                                        <span style="color:#ff0000">@ViewBag.usCount</span> 人
+                                        
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>勤奋比重</td>
+                                    <td>
+                                        <div id="loginpro" class="layui-progress layui-progress-big" lay-showPercent="yes">
+                                            
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="layui-card">
+                    <div class="layui-card-header">登录报告</div>
+                    <div class="layui-card-body layadmin-takerates" id="loglist">
+                        <div class="layui-row">
+                            <div class="layui-col-xs8 layui-col-sm8 layui-col-md8"></div>
+                            <div class="layui-col-xs4 layui-col-sm4 layui-col-md4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-card">
+                    <div class="layui-card-header">实时监控</div>
+                    <div class="layui-card-body layadmin-takerates">
+                        <div class="layui-progress" lay-showPercent="yes">
+                            <h3>CPU使用率</h3>
+                            <div class="layui-progress-bar" lay-percent="17%"></div>
+                        </div>
+                        <div class="layui-progress" lay-showPercent="yes">
+                            <h3>内存占用率</h3>
+                            <div class="layui-progress-bar layui-bg-red" lay-percent="62%"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+    <script src="~/adminui.js"></script>
+    <script>
+        var userInfo = parent.userInfo,
+            configUrl = parent.configUrl,
+            menu = parent.menu;
+
+
+        var online = "@ViewBag.online";
+
+        layui.use(["layer", "form","element","table"], function () {
+            var layer = layui.layer,
+                form = layui.form,
+                element = layui.element,
+                table = layui.table;
+
+
+            $("#changepwd").on("click", function () {
+                parent.ChangePwd();
+            });
+
+            $.ajax({
+                url: configUrl + "/api/users/gdt/QueryLoginLog?head_id=" + userInfo.data[0].head_id + "&page=1&count=6",
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    if (res.code == 0) {
+                        $("#loglist").html(rendHtml(res.data));
+                    } else {
+                        $("#loglist").html("<div style='height:60px;line-height:60px;text-align:center'>"+res.msg+"</div>");
+                    }
+
+                }
+            });
+
+            
+
+            function rendHtml(array) {
+                var html = '';
+                for (var i = 0; i < array.length; i++){
+                    html += '<div class="layui-row" style="padding:10px;border-bottom:1px solid #f0f0f0">' +
+                        '<div class="layui-col-xs8 layui-col-sm8 layui-col-md8">' + array[i].real_name + '</div>' +
+                        '<div class="layui-col-xs4 layui-col-sm4 layui-col-md4">' + timestampToTime2(array[i].login_time) + '</div>' +
+                        '</div>';
+                }
+                return html;
+            }
+
+
+            ///查询用户的在线总时长
+            getUserOnline();
+            function getUserOnline() {
+                if (userInfo.data) {
+                    $.ajax({
+                        url: configUrl + "/api/users/gdt/Query_online?us_id=" + userInfo.data[0].us_id,
+                        type: "post",
+                        contentType: "application/json",
+                        async: false,
+                        success: function (res) {
+                            $("#us_online").html(res + " 分钟<br /><span style='color:#FF5722'> 设备处于黑屏状态、界面隐藏状态和系统退出状态，均不计入用户在线时长</span>");
+                            console.log(res);
+                            var pros = (res / online * 100).toFixed(2);
+                            $("#loginpro").html('<div class="layui-progress-bar layui-bg-green" lay-percent="' + pros + '%"></div>');
+                            element.render();
+                        }
+                    });
+                } else {
+                    userInfo = parent.userInfo;
+                    getUserOnline();
+                }
+                
+            }
+            
+
+            ///查询用户的累计参加模拟考试的次数
+            $.ajax({
+                url: configUrl + "/api/test/gdt/QueryTestCount?us_id=" + userInfo.data[0].us_id,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    var score = res.data;
+                    var date = new Date();
+                    $("#scoreCount").text(score[0].count+" 次");
+                    $("#scoreAvg").text(score[0].avg +" 分");
+                    $("#scoreMax").text(score[0].max + " 分");
+                    $("#scoreMin").text(score[0].min + " 分");
+                    $("#login_time").text(date.getFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getSeconds() + ":" + date.getMinutes());
+                }
+            });
+
+            ///查询所有学员最高得分的排名
+            $.ajax({
+                url: configUrl + "/api/test/gdt/QueryAllUs_MaxScore?head_id=" + userInfo.data[0].head_id,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    console.log(res);
+                    for (var i = 0; i < res.data.length; i++){
+                        if (res.data[i].us_id == userInfo.data[0].us_id) {
+                            $("#pming").text("目前排名第 "+(i+1)+" 名");
+                        }
+                    }
+                }
+            });
+
+            var c1_yhtable = 0;
+            var c1_project = 0;
+            var c2_yhtable = 0;
+            var c2_project = 0;
+            var c2_qrcount = 0;
+            layer.load(1);
+            $.ajax({
+                url: configUrl+"/api/Tj/gdt/TjmySend?us_id=" + userInfo.data[0].us_id,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    //我发布的
+                    $("#c1").text(res.data[0].yhtable + res.data[0].project);
+                    c1_yhtable = res.data[0].yhtable;
+                    c1_project = res.data[0].project;
+
+                    $.ajax({
+                        url: configUrl +"/api/Tj/gdt/waitWork?us_id=" + userInfo.data[0].us_id,
+                        type: "post",
+                        contentType: "application/json",
+                        success: function (res) {
+                            //等处理的
+                            $("#c2").text(res.data[0].yhtable + res.data[0].project + res.data[0].qrcount);
+                            c2_yhtable = res.data[0].yhtable;
+                            c2_project = res.data[0].project;
+                            c2_qrcount = res.data[0].qrcount;
+
+                            $.ajax({
+                                url: configUrl +"/api/Tj/gdt/MyVerifyOver?us_id=" + userInfo.data[0].us_id,
+                                type: "post",
+                                contentType: "application/json",
+                                success: function (res) {
+                                    //已审核
+                                    $("#c3").text(res);
+                                    $.ajax({
+                                        url: configUrl +"/api/Tj/gdt/MyZGover?us_id=" + userInfo.data[0].us_id,
+                                        type: "post",
+                                        contentType: "application/json",
+                                        success: function (res) {
+                                            //已整改
+                                            $("#c4").text(res );
+                                            layer.closeAll("loading");
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            $("#c1").on("click", function () {
+                var that = this;
+                layer.tips('<a style="color:#fff">安全检查项 ' + c1_yhtable + '</a> <br/> <a style="color:#fff">培训计划项 ' + c1_project + '</a>', that, {
+                    tips: [3, '#2F4056'],time:5000
+                }); //在元素的事件回调体中，follow直接赋予this即可
+            });
+
+            $("#c2").on("click", function () {
+                var that = this;
+                layer.tips('<div style="font-size:14px;line-height:22px"><a class="layui-icon" style="color:#fff" id="waitYhTableBtn">&#xe642; 待审批项数量 ' + c2_yhtable + '</a> <br/> <a class="layui-icon" style="color:#fff" id="waitYhProjectBtn">&#xe642; 待整改项数量 ' + c2_project + '</a><br/> <a style="color:#fff" class="layui-icon">&#xe642; 待确认项数量 ' + c2_qrcount + '</a></div>', that, {
+                    tips: [3, '#2F4056']
+                }); //在元素的事件回调体中，follow直接赋予this即可
+            });
+
+            $("#verifybtn").on("click", function () {
+                if (menu != null) {
+                    if (menu.children[0][1].checked) {
+                        layer.open({
+                            type: 2,
+                            title:"权限管理",
+                            content: "/home/verify",
+                            area: ["100%", "100%"]
+                        });
+                    }
+                } else {
+                    if (userInfo.data[0].verify == 0) {
+                        layer.open({
+                            type: 2,
+                            title: "权限管理",
+                            content: "/home/verify",
+                            area: ["100%", "100%"]
+                        });
+                    } else {
+                        layer.msg("权限不足");
+                    }
+                }
+            });
+
+            $("#sysbtn").on("click", function () {
+                var that = this;
+                layer.tips('组织架构管理，请见左侧菜单', that, {
+                    tips: [3,'#2F4056']
+                }); //在元素的事件回调体中，follow直接赋予this即可
+            });
+
+            
+            
+        });
+
+        $(document).on('click', '#waitYhTableBtn', function () {
+            
+            layer.open({
+                type: 2,
+                title: "检查列表",
+                content: "/YinHuan/headlist",
+                area: ["100%", "100%"]
+            });
+        });
+
+        $(document).on('click', '#waitYhProjectBtn', function () {
+            layer.open({
+                type: 2,
+                title: "检查列表",
+                content: "/YinHuan/zlist",
+                area: ["100%", "100%"]
+            });
+        });
+        
+        $.ajax({
+            url: "http://localhost:57319/api/headoffice/gdt/DataList?head_id=" + userInfo.data[0].head_id + "&verify=" + userInfo.data[0].verify + "&com_id=" + userInfo.data[0].com_id + "&b_id=" + userInfo.data[0].b_id + "&c_id=" + userInfo.data[0].com_id + "",
+            type: "post",
+            contentType: "application/json",
+            success: function (res) {
+                console.log("systemList");
+                console.log(res);
+            }
+
+        });
+        
+    </script>
+
+</body>
+</html>
+

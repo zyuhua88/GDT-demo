@@ -1,0 +1,411 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>userList</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <style>
+        html, body {
+            background: #F0F0F0;
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid" style="background:#fff;width:96%;height:auto;margin:10px auto;">
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-row layui-col-space10">
+
+                <div class="layui-col-xs10 layui-col-sm4 layui-col-md4">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">所在公司</label>
+                        <div class="layui-input-block">
+                            <select name="com_id" id="com_id" lay-filter="com_id"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs10 layui-col-sm4 layui-col-md4">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">选择部门</label>
+                        <div class="layui-input-block">
+                            <select name="b_id" id="b_id" lay-filter="b_id"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs10 layui-col-sm4 layui-col-md4">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">选择班组</label>
+                        <div class="layui-input-block">
+                            <select name="c_id" id="c_id"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs10 layui-col-sm4 layui-col-md4">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">关键字</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="value" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs3 layui-col-sm2 layui-col-md1">
+                    <button class="layui-btn" lay-submit lay-filter="send">
+                        <i class="layui-icon">&#xe615;</i> 查询
+                    </button>
+                </div>
+                <div class="layui-col-xs6 layui-col-sm2 layui-col-md1">
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="text-align:center">
+                            <button class="layui-btn" id="addusers">
+                                <i class="layui-icon">&#xe608;</i> 添加
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+            
+        </form>
+        
+    </div>
+    
+    <div style="width:96%;margin:0 auto;background:#fff;padding:5px 16px">
+        <table id="tb" lay-filter="mytable"></table>
+        <script type="text/html" id="bars">
+            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </script>
+        <div id="page"></div>
+    </div>
+    <script>
+        var userInfo = parent.userInfo,
+            configUrl = parent.configUrl;
+
+        var head_id = userInfo.data[0].head_id;
+        var com_id = 0;
+        var b_id = 0;
+        var c_id = 0;
+        var value = "";
+        var page = 1;
+
+        layui.use(["form", "layer", "table"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , table = layui.table;
+            $("#addusers").on("click", function () {
+                layer.open({
+                    type: 2,
+                    title: "添加信息成员信息",
+                    content: "/home/AddUsers",
+                    area: ["96%", "90%"]
+                });
+                return false;
+            });
+
+            ////加载子公司列表
+            $.ajax({
+                url: configUrl + "/api/headoffice/gdt/QueryCompany?head_id=" + userInfo.data[0].head_id + "&com_id=" + userInfo.data[0].com_id + "&verify=" + userInfo.data[0].verify,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    console.log(res);
+                    if (res.code==0){
+                        var comhtml = '<option value="0">集团所属员工</option>';
+                        for (var i = 0; i < res.data.length; i++) {
+                            comhtml += '<option value="' + res.data[i].com_id + '">' + res.data[i].com_name + '</option>';
+                        }
+                        $("#com_id").html(comhtml);
+                        if (userInfo.data[0].verify >= 1) {
+                            com_id = userInfo.data[0].com_id;
+                            form.val("form", {
+                                "com_id": "" + userInfo.data[0].com_id
+                            });
+                            $("#com_id").find("option").attr("disabled", true);
+                            getdeparment(userInfo.data[0].com_id);
+                        }
+                        form.render("select");
+                    }
+                    
+                }
+            });
+
+            /////监听子公司的值改变
+            form.on("select(com_id)", function (data) {
+                var com_ids = data.value;
+                getdeparment(com_ids);
+            });
+
+            function getdeparment(com_id) {
+                var bhtml = '<option value="0">子公司所属员工</option>';
+                if (com_id == 0) {
+                    bhtml = '<option value="0">无选择项</option>';
+                } else {
+                    $.ajax({
+                        url: configUrl + "/api/company/gdt/querydeparment?com_id=" + com_id,
+                        type: "post",
+                        contentType: "application/json",
+                        async: false,
+                        success: function (res) {
+                            for (var i = 0; i < res.data.length; i++) {
+                                bhtml += '<option value="' + res.data[i].b_id + '">' + res.data[i].b_name + '</option>';
+                            }
+                            $("#b_id").html(bhtml);
+                            if (userInfo.data[0].verify > 1) {
+                                getClass(userInfo.data[0].b_id);
+                                b_id = userInfo.data[0].b_id;
+                                form.val("form", {
+                                    "b_id": "" + userInfo.data[0].b_id
+                                });
+                                $("#b_id").find("option").attr("disabled", true);
+                            }
+                            form.render("select");
+                        }
+                    });
+                }
+                
+            }
+
+            ////监听部门的值改变 选择班组
+            form.on("select(b_id)", function (data) {
+                var b_id = data.value;
+                if (userInfo.data[0].verify >= 1) {
+                    b_id = userInfo.data[0].b_id;
+                }
+                //alert(b_id);
+                getClass(b_id);
+            });
+
+            function getClass(b_id) {
+                var bhtml = '<option value="0">部门所属员工</option>';
+                if (b_id == 0) {
+                    bhtml = '<option value="0">无选择项</option>';
+                } else {
+                    $.ajax({
+                        url: configUrl + "/api/deparment/gdt/query?b_id=" + b_id,
+                        type: "post",
+                        contentType: "application/json",
+                        async: false,
+                        success: function (res) {
+                            for (var i = 0; i < res.data.length; i++) {
+                                bhtml += '<option value="' + res.data[i].c_id + '">' + res.data[i].c_name + '</option>';
+                            }
+                            $("#c_id").html(bhtml);
+                        
+                            if (userInfo.data[0].verify > 2) {
+                                c_id = userInfo.data[0].c_id;
+                                $("#c_id").find("option").attr("disabled", true);
+                                form.val("form", {
+                                    "c_id": "" + userInfo.data[0].c_id
+                                });
+                            }
+                            form.render("select");
+                        }
+                    });
+                }
+            }
+
+            ///提交数据筛选
+            form.on("submit(send)",function (obj) {
+                //console.log(obj.field);
+                //alert("21");
+                var data = obj.field;
+                if (data.b_id == "") {
+                    b_id = 0;
+                    obj.field.b_id = 0;
+                } else {
+                    b_id = data.b_id;
+                }
+                if (data.c_id == "") {
+                    c_id = 0;
+                    obj.field.c_id = 0;
+                } else {
+                    c_id = data.c_id;
+                }
+                value = obj.field.value;
+                com_id = obj.field.com_id;
+                getdate(head_id,com_id, b_id, c_id, value, 1);
+                return false;
+            })
+        });
+
+        var obj = {};
+        getdate(head_id, com_id, b_id, c_id, value, page);
+
+        function getdate(head_id, com_id, b_id, c_id, value, page) {
+            var url = configUrl+"/api/users/gdt/queryuserlist?head_id=" + head_id + "&com_id=" + com_id + "&b_id=" + b_id + "&c_id=" + c_id + "&value=" + value + "&page=" + page + "&count=15&verify=" + userInfo.data[0].verify + "&mycom_id=" + userInfo.data[0].com_id + "&myb_id=" + userInfo.data[0].b_id + "&myc_id=" + userInfo.data[0].c_id + "";
+            $.ajax({
+                url: url,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    obj.count = res.count;
+                    console.log(res.data);
+                    if (res.code == 0) {
+                        databind(head_id, com_id, b_id, c_id, value, page, res.data)
+                    } else {
+                        databind(head_id, com_id, b_id, c_id, value, page,[])
+                    }
+                    
+                }
+            });
+        }
+
+        Object.defineProperty(obj, "count", {
+            get: function () {
+                return _count;
+            },
+            set: function (val) {
+                if (val != this._count) {
+                    layui.use(["laypage"], function () {
+                        var laypage = layui.laypage;
+                        laypage.render({
+                            elem: 'page'
+                            , limit: 15
+                            , count: val //数据总数，从服务端得到
+                            , jump: function (obj, first) {
+                                //obj包含了当前分页的所有参数，比如：
+                                console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+                                console.log(obj.limit); //得到每页显示的条数
+
+                                //首次不执行
+                                if (!first) {
+                                    page = obj.curr;
+                                    //do something
+                                    getdate(userInfo.data[0].head_id, com_id, b_id, c_id, value, obj.curr);
+                                }
+                            }
+                        });
+                    });
+                }
+                this._count = val;
+            }
+        });
+
+
+
+        function databind(head_id, com_id, b_id, c_id, value, page, data) {
+
+            layui.use(["table"], function () {
+                var table = layui.table;
+                
+                table.render({
+                    elem: "#tb",
+                    height: "full-220",
+                    limit: 15,
+                    skin: "row",
+                    cellMinWidth: 100,
+                    data: data,
+                    text: {
+                        none: '暂无相关数据' //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+                    },
+                    size: "sm",
+                    cols: [[
+                        { field: "us_id", title: "ID", width: 60, sort: true }
+                        , { field: "real_name", title: "真实姓名",width:100 }
+                        , { field: "login_name", title: "登录名" }
+                        , {
+                            field: "com_name", title: "所属公司", sort: true,
+                            templet: function (d) {
+                                if (d.com_name == "" || d.com_name == null) {
+                                    return "集团成员";
+                                } else {
+                                    return d.com_name;
+                                }
+                            }
+                        }
+                        , { field: "b_name", title: "所属部门" }
+                        , { field: "c_name", title: "所属班级" }
+                        , {
+                            field: "position", title: "职务",
+                            templet: function (d) {
+                                if (d.position == 0) {
+                                    return "系统管理";
+                                } else {
+                                    return d.position;
+                                }
+                            }
+                        }
+                        , {
+                            field: "gender", title: "性别",width:60,
+                            templet: function (d) {
+                                if (d.gender == 1) {
+                                    return "男";
+                                } else {
+                                    return "女";
+                                }
+                            }
+                        }
+                        , {title:"操作",toolbar:"#bars",width:130}
+                    ]]
+                });
+                table.on("tool(mytable)", function (obj) {
+                    var event = obj.event;
+                    
+                    if (event == "edit") {
+                        layer.open({
+                            type: 2,
+                            title: "修改员工信息",
+                            content: "/home/addusers?us_id=" + obj.data.us_id,
+                            area:["90%","90%"]
+                        });
+                    }
+
+                    if (event == "del") {
+                        //alert(JSON.stringify(obj.data));
+                        if (obj.data.verify==0) {
+                            layer.msg("您无权删除管理账号");
+                            return;
+                        }
+                        if (userInfo.data[0].verify >= obj.data.verify) {
+                            layer.msg("您无权删除您的上级、同级管理员信息！");
+                            return;
+                        } 
+                        layer.confirm('确定要删除该员工信息吗？', { icon: 3, title: '提示' }, function (index) {
+                            //do something
+                            layer.close(index);
+
+                            $.ajax({
+                                url: configUrl+"/api/users/gdt/deluser_detail?us_id="+obj.data.us_id,
+                                type: "post",
+                                contentType: "application/json",
+                                success: function (res) {
+                                    console.log(res);
+                                    if (res.code == 0) {
+                                        obj.del();
+                                    } else {
+                                        layer.msg(res.msg, {icon:2});
+                                    }
+                                }
+                            });
+                            
+                        });
+                    }
+
+                    if (event=="cart"){
+                        layer.open({
+                            type: 2,
+                            title: "查看学习进度情况",
+                            content: "/Tj/TjView?us_id=" + obj.data.us_id,
+                            area: ["90%", "90%"]
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

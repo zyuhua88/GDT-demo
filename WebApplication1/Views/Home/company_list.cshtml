@@ -1,0 +1,115 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>company_list</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-fluid" style="margin-top:40px">
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-md12 layui-col-xs12 layui-col-sm12">
+                <button class="layui-btn" id="addCompany">
+                    <i class="layui-icon">&#xe608;</i> 添加子公司
+                </button>
+            </div>
+        </div>
+        <div class="layui-row layui-col-space10">
+            
+            <div class="layui-col-md12">
+                <table id="tb" lay-filter="mytable"></table>
+            </div>
+            <script type="text/html" id="barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+
+            </script>
+        </div>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo;
+        var configUrl = parent.configUrl;
+        getList();
+        function getList() {
+            layui.use(["table", "layer"], function () {
+                var table = layui.table
+                    , layer = layui.layer;
+                table.render({
+                    elem: "#tb",
+                    height: "full-130",
+                    skin: "row",
+                    method: "post",
+                    contentType: "application/json",
+                    size: "sm",
+                    cellMinWidth: 100,
+                    url: configUrl + "/api/headoffice/gdt/QueryCompany?head_id=" + userInfo.data[0].head_id + "&com_id=" + userInfo.data[0].com_id + "&verify=" + userInfo.data[0].verify,
+                    cols: [[
+                        { field: "com_name", title: "名称" },
+                        { field: "com_size", title: "规模" },
+                        { field: "work_address", title: "办公地址" },
+                        { field: "b_count", title: "部门", width: 60, style: "text-align:right;background:#5FB878;color:#fff" },
+                        { field: "u_count", title: "员工", width: 60, style:"text-align:right;background:#5FB878;color:#fff" },
+                        { title: "操作", fixed: "right", toolbar: "#barDemo", width: 160 }
+                    ]]
+                });
+                table.on("tool(mytable)", function (obj) {
+                    var data = obj.data; //获得当前行数据
+                    var layEvent = obj.event; //获得 lay-event 对应的值
+                    if (userInfo.data[0].verify == 0) {
+                        if (layEvent == "edit") {
+                            layer.open({
+                                type: 2,
+                                title: "修改公司信息",
+                                content: "/home/add_company?com_id=" + data.com_id,
+                                area: ["90%", "80%"]
+                            });
+                        }
+                        if (layEvent == "del") {
+                            layer.confirm('删除子公司将同时删除其下部门及班级信息。但不会删除员工信息。您确定继续该操作吗?', { icon: 3, title: '提示' }, function (index) {
+                                //do something
+                                layer.load();
+                                $.ajax({
+                                    url: configUrl + "/api/headoffice/gdt/DelCompany?com_id=" + data.com_id,
+                                    type: "post",
+                                    contentType: "application/json",
+                                    success: function (res) {
+                                        layer.closeAll("loading");
+                                        if (res.code == "A0000") {
+                                            layer.msg(res.msg, { icon: 1, shade: 0.5 });
+                                            obj.del();
+                                        } else {
+                                            layer.msg(res.msg, { icon: 2, shade: 0.5 });
+                                        }
+                                    }
+                                });
+                                layer.close(index);
+                            });
+                        }
+                    } else {
+                        layer.msg("您的权限不足", {icon:2,shade:0.5});
+                    }
+                    
+                });
+                $("#addCompany").on("click", function () {
+                    layer.open({
+                        type: 2,
+                        title: "添加子公司",
+                        content: "/home/Add_company",
+                        area: ["90%", "90%"]
+                    });
+                })
+            });
+        }
+        
+    </script>
+</body>
+</html>

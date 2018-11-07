@@ -1,0 +1,364 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Test_File</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <style>
+        html,body{width:100%;height:100%;background:#f0f0f0}
+        .content{background:#fff;}
+        .title{overflow:hidden}
+    </style>
+</head>
+<body>
+    <div style="height:20px"></div>
+    <div class="layui-fluid" >
+        <div class="layui-row layui-col-space1">
+            <div class="layui-col-xs12" style="background:#fff;">
+                <blockquote class="layui-elem-quote">
+                    <div class="layui-row">
+                        <div id="fileUploadBtn" class="layui-col-xs4 layui-hide-xs">
+                            <button class="layui-btn layui-btn-primary" id="getoUpload">
+                                <i class="layui-icon">&#xe67c;</i> 文件上传
+                            </button>
+                        </div>
+                        <div class="layui-col-xs12 layui-col-sm8">
+                            <form class="layui-form" lay-filter="ssform">
+                                <div class="layui-row layui-col-space12">
+                                    <div class="layui-col-xs6 layui-col-sm6">
+                                        <input type="text" name="value" placeholder="请输入关键词查询" autocomplete="off" class="layui-input">
+                                    </div>
+                                    <div class="layui-col-xs3  layui-col-sm2">
+                                        <button class="layui-btn" lay-submit lay-filter="ssbtn">
+                                            <i class="layui-icon">&#xe615;</i> 搜 索
+                                        </button>
+                                    </div>
+                                    <div class="layui-col-xs3  layui-col-sm2 layui-hide-xs" style="line-height:34px">
+                                        <span class="layui-btn" id="allbtn">查看全部</span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                </blockquote>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space20">
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div>
+                    <div class="layui-card">
+
+                        <div class="layui-card-header">Word文件类</div>
+                        <div class="layui-card-body" id="body1">
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <script id="docjs" type="text/html">
+                {{# layui.each(d.list1,function(index,item){ }}
+                <div class="layui-row layui-col-space10" onclick="documentView('{{item.filepath}}','{{item.types}}','{{item.id}}')">
+                    <div class="layui-col-xs3 layui-col-sm2 layui-col-md2" style="overflow:hidden">
+                        <img style="width:80px;" src="{{item.img}}" />
+                    </div>
+                    <div class="layui-col-xs9  layui-col-sm10 layui-col-md10">
+                        <div class="layui-row">
+                            <div class="layui-col-xs12 layui-elip title"><b style="color:#009688">{{item.title}}</b></div>
+                        </div>
+                        <div class="layui-row layui-col-space10">
+                            <div class="layui-col-xs4 layui-col-sm4 layui-hide-xs title">{{item.updatetime}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">类型：{{item.types}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">浏览：<b style="color:#ff6a00">{{item.lookcount }}</b></div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {{# }); }}
+                {{# if(d.list1.length===0){ }}
+                <span style="color:#FFB800">没有上传相关文档</span>
+                {{# } }}
+
+            </script>
+
+
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div>
+                    <div class="layui-card">
+                        <div class="layui-card-header">Excel文件类</div>
+                        <div class="layui-card-body" id="body2">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script id="xljs" type="text/html">
+                {{# layui.each(d.list2,function(index,item){ }}
+                <div class="layui-row layui-col-space10" onclick="documentView('{{item.filepath}}','{{item.types}}','{{item.id}}')">
+                    <div class="layui-col-xs3 layui-col-sm2 layui-col-md2" style="overflow:hidden">
+                        <img style="width:80px;" src="{{item.img}}" />
+                    </div>
+                    <div class="layui-col-xs8  layui-col-sm10 layui-col-md10">
+                        <div class="layui-row">
+                            <div class="layui-col-xs12 layui-elip title"><b style="color:#009688">{{item.title}}</b></div>
+                        </div>
+                        <div class="layui-row layui-col-space10">
+                            <div class="layui-col-xs4 layui-col-sm4 layui-hide-xs title">{{item.updatetime}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">类型：{{item.types}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">浏览：<b style="color:#ff6a00">{{item.lookcount }}</b></div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {{# }); }}
+                {{# if(d.list2.length===0){ }}
+                <span style="color:#FFB800">没有上传相关文档</span>
+                {{# } }}
+            </script>
+
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div>
+                    <div class="layui-card">
+                        <div class="layui-card-header">Pdf文件类</div>
+                        <div class="layui-card-body" id="body3">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script id="pdfjs" type="text/html">
+                {{# layui.each(d.list3,function(index,item){ }}
+                <div class="layui-row layui-col-space10" onclick="documentView('{{item.filepath}}','{{item.types}}','{{item.id}}')">
+                    <div class="layui-col-xs3 layui-col-sm2 layui-col-md2" style="overflow:hidden">
+                        <img style="width:80px;" src="{{item.img}}" />
+                    </div>
+                    <div class="layui-col-xs8  layui-col-sm10 layui-col-md10">
+                        <div class="layui-row">
+                            <div class="layui-col-xs12 layui-elip title"><b style="color:#009688">{{item.title}}</b></div>
+                        </div>
+                        <div class="layui-row layui-col-space10">
+                            <div class="layui-col-xs4 layui-col-sm4 layui-hide-xs title">{{item.updatetime}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">类型：{{item.types}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">浏览：<b style="color:#ff6a00">{{item.lookcount }}</b></div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {{# }); }}
+                {{# if(d.list3.length===0){ }}
+                <span style="color:#FFB800">没有上传相关文档</span>
+                {{# } }}
+            </script>
+
+            <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                <div>
+                    <div class="layui-card">
+                        <div class="layui-card-header">PPT文件类</div>
+                        <div class="layui-card-body" id="body4">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script id="pptjs" type="text/html">
+                {{# layui.each(d.list4,function(index,item){ }}
+                <div class="layui-row layui-col-space10" onclick="documentView('{{item.filepath}}','{{item.types}}','{{item.id}}')">
+                    <div class="layui-col-xs3 layui-col-sm2 layui-col-md2" style="overflow:hidden">
+                        <img style="width:80px;" src="{{item.img}}" />
+                    </div>
+                    <div class="layui-col-xs9  layui-col-sm10 layui-col-md10">
+                        <div class="layui-row">
+                            <div class="layui-col-xs12 layui-elip title"><b style="color:#009688">{{item.title}}</b></div>
+                        </div>
+                        <div class="layui-row layui-col-space10">
+                            <div class="layui-col-xs4 layui-col-sm4 layui-hide-xs title">{{item.updatetime}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">类型：{{item.types}}</div>
+                            <div class="layui-col-xs6 layui-col-sm4 title">浏览：<b style="color:#ff6a00">{{item.lookcount }}</b></div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {{# }); }}
+                {{# if(d.list4.length===0){ }}
+                <span style="color:#FFB800">没有上传相关文档</span>
+                {{# } }}
+            </script>
+
+
+
+
+        </div>
+        <div class="layui-col-xs12  layui-col-sm4 layui-hide-sm" style="text-align:center;height:40px;line-height:40px">
+            <span style="text-align:center" id="allbtn1">加载更多</span>
+        </div>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl;
+        var filetype = "@ViewBag.filetype";
+        var jibie = "@ViewBag.jibie";
+
+        if (userInfo.data[0].verify==4) {
+            $("#fileUploadBtn").css("display","none");
+        }
+
+        layui.use(["layer","laytpl","form"], function () {
+            var layer = layui.layer
+                , laytpl = layui.laytpl
+                , form = layui.form;
+
+            layer.load(1);
+            $("#getoUpload").on("click", function () {
+                layer.open({
+                    type: 2,
+                    title: "学习资料上传",
+                    content: "/Test/upload",
+                    area: ["80%", "88%"]
+                });
+            });
+
+            var obj = {
+                list1: [],
+                list2: [],
+                list3: [],
+                list4: [],
+                list5:[]
+            };
+            //加载word文档
+            obj.list1 = getData(configUrl + "/api/filelist/gdt/Query?head_id=" + userInfo.data[0].head_id + "&value=&types=do&page=1&count=6");
+            obj.list2 = getData(configUrl + "/api/filelist/gdt/Query?head_id=" + userInfo.data[0].head_id + "&value=&types=xl&page=1&count=6");
+            obj.list3 = getData(configUrl + "/api/filelist/gdt/Query?head_id=" + userInfo.data[0].head_id + "&value=&types=pdf&page=1&count=6");
+            obj.list4 = getData(configUrl + "/api/filelist/gdt/Query?head_id=" + userInfo.data[0].head_id + "&value=&types=pp&page=1&count=6");
+            //obj.list5 = getData(configUrl + "/api/filelist/gdt/Query?head_id=" + userInfo.data[0].head_id + "&value=&types=video&page=1&count=6");
+
+            console.log(obj.list1);
+            function getData(url) {
+                var list = [];
+                $.ajax({
+                    url: url,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        console.log("datedata");
+                        console.log(res.data);
+                        if (res.code == 0) {
+                            for (var i = 0; i < res.data.length; i++){
+                                res.data[i].img = configUrl + "/Files/" + res.data[i].img;
+                                res.data[i].updatetime = timestampToTime2(res.data[i].updatetime);
+                            }
+                            list= res.data;
+                        }
+                    }
+                });
+                return list;
+            }
+
+            var getTpl = docjs.innerHTML
+                , view = document.getElementById('body1');
+            laytpl(getTpl).render(obj, function (html) {
+                view.innerHTML = html;
+            });
+
+            var getTpl2 = xljs.innerHTML
+                , view2 = document.getElementById('body2');
+            laytpl(getTpl2).render(obj, function (html) {
+                view2.innerHTML = html;
+            });
+
+            var getTpl3 = pdfjs.innerHTML
+                , view3 = document.getElementById('body3');
+            laytpl(getTpl3).render(obj, function (html) {
+                view3.innerHTML = html;
+            });
+
+            var getTpl4 = pptjs.innerHTML
+                , view4 = document.getElementById('body4');
+            laytpl(getTpl4).render(obj, function (html) {
+                view4.innerHTML = html;
+            });
+
+            //var getTpl5 = videojs.innerHTML
+            //    , view5 = document.getElementById('body5');
+            //laytpl(getTpl5).render(obj, function (html) {
+            //    view5.innerHTML = html;
+            //});
+
+            layer.closeAll("loading");
+
+            $("#allbtn").on("click", function () {
+                openall();
+            });
+            $("#allbtn1").on("click", function () {
+                openall();
+            });
+
+            function openall() {
+                layer.open({
+                    type: 2,
+                    title: "全部文件",
+                    content: "/Test/FileList?value=",
+                    area: ["98%", "90%"]
+                });
+            }
+
+            //搜索文件
+            form.on("submit(ssbtn)", function (obj) {
+                var values = obj.field.value;
+                if (values.trim() == "") {
+                    return false;
+                } else {
+                    layer.open({
+                        type: 2,
+                        title: "全部文件",
+                        content: "/Test/FileList?value=" + values,
+                        area:["86%","90%"]
+                    });
+                }
+                return false;
+            })
+            
+        });
+
+        function documentView(filepath, types, id) {
+            //alert(id);
+            var src = "https://GDTAPI.gooceer.com/Files/" + filepath;
+            if (types != "pdf") {
+                
+                var path = "http://view.officeapps.live.com/op/view.aspx?src=" + encodeURI(src);
+                //layui.use("layer", function () {
+                //    var layer = layui.layer;
+                //    layer.open({
+                //        type: 2,
+                //        title: "",
+                //        content: "/test/documentview?src=" + path,
+                //        area: ["98%", "98%"]
+                //    });
+                //});
+                window.open("/test/documentview?src=" + path + "&fileid=" + id + "&usid=" + userInfo.data[0].us_id);
+            } else {
+                window.location.href = src;
+            }
+            
+        }
+    </script>
+</body>
+</html>

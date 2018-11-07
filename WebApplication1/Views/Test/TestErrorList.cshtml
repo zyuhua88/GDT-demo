@@ -1,0 +1,168 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>TestErrorList</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <style>
+        html,body{width:100%;height:100%}
+        .opens {
+            width:88%;
+            margin:0 auto;
+            line-height: 22px;
+            color: #fff;
+            font-weight: 300;
+        }
+        .tj {
+            color: #fff;
+            height: 50px;
+            line-height: 50px;
+            border-bottom: 1px solid #2f2c2c;
+            text-align: center;
+            font-size:15px
+        }
+    </style>
+</head>
+<body>
+    <div style="background-color: #393D49;height:100%;margin:0px;padding:0px;overflow-y:auto">
+        <form class="layui-form" id="form">
+            @*<div class="opens">
+                <p>miaoshu</p><br />
+                <b>这里是试题的问题 </b><br />
+                <input type="radio" name="sex" value="1" title="答案1"><br />
+                <input type="radio" name="sex" value="1" title="答案1"><br />
+                <input type="radio" name="sex" value="1" title="答案1"><br />
+            </div>*@
+        </form>
+    </div>
+    
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl;
+
+        var us_id = userInfo.data[0].us_id;
+        var classify_id = "@ViewBag.classify_id";
+        var testList = [];
+        var page = 0;
+
+        layui.use(["form", "layer"], function () {
+            var layer = layui.layer
+                , form = layui.form;
+            $.ajax({
+                url: configUrl + "/api/test/gdt/TestError?us_id=" + userInfo.data[0].us_id + "&classify_id=" + classify_id,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    if (res.code == 0) {
+                        console.log("-----------------------");
+                        testList = res.data;
+                        console.log(res.data);
+                        $("#form").html(rendHtml(page));
+                        form.render();
+                    } else {
+                        layer.msg(res.msg, { icon: 1 }, function () {
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭 
+                        });
+                    }
+                }
+            });
+
+
+            function rendHtml(page) {
+                var list = testList[page];
+                var html = '<div class="tj">本题您错误次数：<span class="ec">' + list.MyTestCount + '</span> 次；全部累计出错量：' + list.TestCount + ' 次 </div>'+
+                    '<div class="opens" > ' +
+                    '<p>'+list.t_desc+'</p> <br />' +
+                    '<b>' + list.t_title +' </b> <br /><br />';
+                
+                var filter = "radio"
+                var skin = "";
+                if (list.t_type == "多选题" || list.t_type == "多项选择题") {
+                    filter = "checkbox";
+                    skin = "primary";
+                }
+
+                if (list.t_a != "") {
+                    html += '<input type="' + filter + '" lay-filter="' + filter + '" name="t" value="A" title="' + list.t_a + '" lay-skin="' + skin + '"><br />';
+                }
+                if (list.t_b != "") {
+                    html += '<input type="' + filter + '" lay-filter="' + filter + '" name="t" value="B" title="' + list.t_b + '" lay-skin="' + skin + '"><br />';
+                }
+                if (list.t_c != "") {
+                    html += '<input type="' + filter + '" lay-filter="' + filter + '" name="t" value="C" title="' + list.t_c + '" lay-skin="' + skin + '"><br />';
+                }
+                if (list.t_d != "") {
+                    html += '<input type="' + filter + '" lay-filter="' + filter + '" name="t" value="D" title="' + list.t_d + '" lay-skin="' + skin + '"><br />';
+                }
+                if (testList[page].t_e != "") {
+                    html += '<input type="' + filter + '" lay-filter="' + filter + '" name="t" value="E" title="' + list.t_e + '" lay-skin="' + skin + '"><br />';
+                }
+                if (list.t_f != "") {
+                    html += '<input type="' + filter + '" lay-filter="' + filter + '" name="t" value="F" title="' + list.t_f + '" lay-skin="' + skin + '"><br />';
+                }
+                html += '</div>';
+
+                return html;
+            }
+
+            ///监听单选题
+            form.on("radio(radio)", function (obj) {
+                var value = obj.value;
+                if (value == testList[page].daan) {
+                    delError();
+                    layer.msg("恭喜，回答正确！", { icon: 1, shade: 0.5, time: 2000 }, function () {
+                        page = page + 1;
+                        $("#form").html(rendHtml(page));
+                        form.render();
+                    });
+                } else {
+                    var ec = $("#form").find(".ec").eq(0).text();
+                    $("#form").find(".ec").eq(0).text(parseInt(ec)+1);
+                    layer.msg("您又答错了", {icon:2,shade:0.5,time:2000});
+                }
+            });
+
+            ////监听多选题的回答方法
+            form.on("checkbox(checkbox)", function (obj) {
+                var cd = "";
+                $("input:checkbox[name='t']:checked").each(function (i) {
+                    cd += $(this).val();
+                });
+                if (cd == testList[page].daan) {
+                    delError();
+                    layer.msg("恭喜，回答正确！", { icon: 1, shade: 0.5, time: 2000 }, function () {
+                        page = page + 1;
+                        $("#form").html(rendHtml(page));
+                        form.render();
+                    });
+                } else {
+                    var ec = $("#form").find(".ec").eq(0).text();
+                    $("#form").find(".ec").eq(0).text(parseInt(ec) + 1);
+                    layer.msg("您又答错了", { icon: 2, shade: 0.5, time: 2000 });
+                }
+            })
+
+            function delError() {
+                $.ajax({
+                    url: configUrl + "/api/test/gdt/DelError?eid=" + testList[page].eid,
+                    type: "post",
+                    contentType: "application/json"
+                });
+            }
+
+        });
+    </script>
+</body>
+</html>

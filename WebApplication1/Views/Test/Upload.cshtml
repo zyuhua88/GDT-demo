@@ -1,0 +1,231 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Upload</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+</head>
+<body>
+    <div style="margin-top:30px"></div>
+    <div class="layui-fluid">
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red">*</span> 文件名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" required lay-verify="required" placeholder="请输入文件标题" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red">*</span> 封面图片</label>
+                <div class="layui-input-inline">
+                    <div class="layui-upload-drag" id="img">
+                        <i class="layui-icon"></i>
+                        <p>点击上传，或将文件拖拽到此处</p>
+                    </div>
+                </div>
+                <label class="layui-form-label" id="imgView">
+                    @*图片预览*@
+                </label>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span style="color:red">*</span> 学习资料</label>
+                <div class="layui-input-inline">
+                    <button type="button" class="layui-btn" id="file"><i class="layui-icon"></i>上传文件</button>
+                </div>
+                <label class="layui-form-label">最低学时</label>
+                <div class="layui-input-inline">
+                    <select name="studenttime" lay-verify="required">
+                        <option value="30">30分钟</option>
+                        <option value="60">一小时</option>
+                        <option value="120">二小时</option>
+                        <option value="240">四小时</option>
+                        <option value="480">八小时</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item" id="filets" style="display:none">
+                <label class="layui-form-label">上传进度</label>
+                <div class="layui-input-block">
+                    <div style="height:14px"></div>
+                    <div class="layui-progress layui-progress-big" lay-showPercent="yes" lay-filter="pros" style="width:96%;">
+                        <div class="layui-progress-bar layui-bg-orange" lay-percent="0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item" id="filetype">
+                <label class="layui-form-label">文件类型</label>
+                <div class="layui-input-inline">
+                    <select name="filetyle" lay-verify="required" lay-filter="filetype">
+                        <option value="0">普通文件</option>
+                        <option value="1">三级教育</option>
+                    </select>
+                </div>
+                <label class="layui-form-label jibie">文件级别</label>
+                <div class="layui-input-inline jibie">
+                    <select name="jibie" lay-verify="required" lay-filter="jibie">
+                        <option value="0">请选择</option>
+                        <option value="1">公司（厂）级</option>
+                        <option value="2">部门（车间）级</option>
+                        <option value="3">班组级</option>
+                    </select>
+                </div>
+            </div>
+            
+
+            <div class="layui-form-item">
+                <blockquote class="layui-elem-quote">注：配置员工的最低学时，可以保障用户的学习效率。目前只支持最多八小时（以分钟为单位）</blockquote>
+            </div>
+
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="send">立即提交</button>
+                    <button class="layui-btn layui-btn-primary" id="close">关闭</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl;
+
+        layui.use(["form","layer","upload","element"], function () {
+            var layer = layui.layer
+                , form = layui.form
+                , upload = layui.upload
+                , element = layui.element;
+            //初始让文件级别隐藏
+            $(".jibie").fadeOut(20);
+
+            var img = "";
+            var filepath = "";
+            var types = "";
+
+            upload.render({
+                elem: '#img'
+                , url: configUrl +'/api/files/gdt/uploadfile'
+                , accept: 'file' //普通文件
+                , choose: function (obj) {
+                    //将每次选择的文件追加到文件队列
+                    var files = obj.pushFile();
+
+                    //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                    obj.preview(function (index, file, result) {
+                        //console.log(result); //得到文件base64编码，比如图片
+                        $("#imgView").html("<img src='" + result + "' style='height:120px' />");
+                    });
+                }
+                , done: function (res) {
+                    //alert(res.data.src);
+                    img = res.data.src;
+                }
+            });
+            var settimes;
+            upload.render({
+                elem: '#file'
+                , url: configUrl + '/api/files/gdt/uploadfile'
+                , accept: 'file' //普通文件
+                , choose: function (obj) {
+                    //将每次选择的文件追加到文件队列
+                    $("#filets").fadeIn(100);
+                    var i= 0;
+                    settimes= setInterval(function () {
+                        i=i + 0.2;
+                        if (i < 87) {
+                            element.progress('pros', i+'%');
+                        }
+                    },90);
+                }
+                , done: function (res) {
+                    clearInterval(settimes);
+                    filepath = res.data.src;
+                    var tp = filepath.substring(filepath.lastIndexOf(".") + 1, filepath.length);
+                    if (tp == "mp4" || tp == "wav" || tp == "3gp") {
+                        types = "video";
+                    } else {
+                        types = tp;
+                    }
+                    element.progress('pros', '100%');
+                }
+            });
+
+            //监听用户选择文件的类型
+            form.on("select(filetype)", function (obj) {
+                var val = obj.value;
+                //alert(obj.value);
+                if (val == 0) {
+                    $(".jibie").fadeOut(20);
+                    form.val("form",{
+                        jibie:"0"
+                    });
+                    form.render("select");
+                } else {
+                    $(".jibie").fadeIn(20);
+                }
+            })
+
+            ////save to database
+            form.on("submit(send)", function (obj) {
+                if (img == "") {
+                    layer.msg("请选择封面图像");
+                    return false;
+                }
+                if (filepath=="") {
+                    layer.msg("请选择要上传的学习资料");
+                    return false;
+                }
+                obj.field.img = img;
+                obj.field.filepath = filepath;
+                obj.field.types = types;
+                obj.field.loaduser = userInfo.data[0].us_id;
+                obj.field.head_id = userInfo.data[0].head_id;
+                console.log("form data");
+                console.log(obj.field);
+                layer.load(1);
+                $.ajax({
+                    url: configUrl +"/api/filelist/gdt/Add",
+                    type: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res.code == 0) {
+                            element.progress('pros', '0%');
+                            $("#filets").fadeOut(100);
+                            layer.msg(res.msg, { icon: 1 });
+                            obj.field.img = "";
+                            obj.field.filepath = "";
+                            img = "";
+                            filepath = "";
+                            $("#imgView").html("");
+                        } else {
+                            layer.msg(res.msg, { icon: 2 });
+                        }
+                    }
+                });
+                return false;
+            })
+
+            ///close the window
+            $("#close").on("click", function () {
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭  
+            });
+            
+        });
+    </script>
+</body>
+</html>

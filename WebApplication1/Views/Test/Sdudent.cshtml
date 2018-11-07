@@ -1,0 +1,450 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Sdudent</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden
+        }
+    </style>
+</head>
+<body>
+    <blockquote class="layui-elem-quote" style="color:#FF5722;font-size:16px;font-weight:bold" id="viewDaan">显示本题正确答案</blockquote>
+    <div class="layui-icon layui-icon-template-1" style="position:absolute;right:10px;top:10px;font-size:25px;background:#333;color:#fff;width:40px;height:40px;border-radius:5px;text-align:center;line-height:40px;cursor:pointer" id="mun"></div>
+    <div class="layui-fluid" style="width:90%;height:90%; margin:30px auto 0px auto;position:relative">
+
+        <form class="layui-form" id="form" style="height:75%;overflow-y:auto;display:block;overflow-x:hidden"></form>
+
+        <div class="layui-row layui-col-space1">
+            <div class="layui-col-xs3 layui-col-sm9"></div>
+            <div class="layui-col-xs3 layui-col-sm1"><button class="layui-btn" id="pro">上一题</button></div>
+            <div class="layui-col-xs3 layui-col-sm1"><button id="next" class="layui-btn">下一题</button></div>
+            <div class="layui-col-xs3 layui-col-sm1"><button id="view" class="layui-btn layui-bg-orange">显示答案</button></div>
+        </div>
+    </div>
+    <div style="height:200px">
+        @*占位框*@
+    </div>
+    <div id="formIfram" style="width:100%;height:100%;background:#f0f0f0;">
+        @*加载试题的编号*@
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo,
+            configUrl = parent.configUrl,
+            testid = "@ViewBag.classify_id",
+            testList = [],//存放本套所有试题的序号及选中状态
+            testCount = 0,
+            page = 0,
+            overCount = 0;
+        //alert(JSON.stringify(window.localStorage));
+        
+        try {
+            
+            var testKey = JSON.parse(localStorage.getItem("testKey"));
+            overCount = testKey[0].overCount;
+            
+            //alert(testKey);
+            var istrue = 0;
+            //便利内存，查看内存在是否存在本套试题
+            //alert(testKey.length);
+            for (var i = 0; i < testKey.length; i++) {
+                //alert(testKey[i].testid);
+                if (testKey[i].testid == testid) {
+                    istrue = 1;
+                    testList = testKey[i].data;
+                    testCount = testKey[i].data.length;
+                    page = testKey[i].page;
+                }
+            }
+
+            //如果内存中数据不存在本套试题信息
+            if (istrue < 1) {
+                $.ajax({
+                    url: configUrl + "/api/test/gdt/GetAllTest?testid=" + testid,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        if (res.code === 0) {
+                            for (var i = 0; i < res.data.length; i++) {
+                                res.data[i].chA = "";
+                                res.data[i].chB = "";
+                                res.data[i].chC = "";
+                                res.data[i].chD = "";
+                                res.data[i].chE = "";
+                                res.data[i].chF = "";
+                            }
+                            var obj = {
+                                testid: testid,
+                                page: page,
+                                overCount: 0,
+                                data: res.data
+                            };
+                            testKey.push(obj);
+                            localStorage.setItem("testKey", JSON.stringify(testKey));
+                            //console.log(testKey);
+                            testList = res.data;
+                            testCount = res.data.length;
+
+                        } else {
+                            layui.use("layer", function () {
+                                var layer = layui.layer;
+                                layer.msg(res.msg, { icon: 2 });
+                            });
+                        }
+                    }
+                });
+            }
+        } catch (e) {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                layer.msg("您的设备不支持进度功能，请提升设备浏览器，以达到兼容！", {icon:2});
+            });
+            $.ajax({
+                url: configUrl + "/api/test/gdt/GetAllTest?testid=" + testid,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    //alert(JSON.parse(res));
+                    if (res.code === 0) {
+                        for (var i = 0; i < res.data.length; i++) {
+                            res.data[i].chA = "";
+                            res.data[i].chB = "";
+                            res.data[i].chC = "";
+                            res.data[i].chD = "";
+                            res.data[i].chE = "";
+                            res.data[i].chF = "";
+                        }
+                        var obj = {
+                            testid: testid,
+                            page: page,
+                            overCount: 0,
+                            data: res.data
+                        };
+                        //console.log(testKey);
+                        testList = res.data;
+                        testCount = res.data.length;
+
+                    } else {
+                        layui.use("layer", function () {
+                            var layer = layui.layer;
+                            layer.msg(res.msg, { icon: 2 });
+                        });
+                    }
+                }
+            });
+        }
+
+        
+       
+        
+
+        layui.use(["form", "layer"], function () {
+            var form = layui.form
+                , layer = layui.layer;
+
+            GetTEST(page);
+
+            
+
+            ///监听单选
+            form.on('radio(radio)', function (data) {
+                var ch = testList[page];
+                if (ch.chA == "" && ch.chB == "" && ch.chC == "" && ch.chD == "" && ch.chE == "" && ch.chF=="") {
+                    overCount = testKey[0].overCount + 1;
+                }
+                //console.log(data.elem); //得到radio原始DOM对象
+                console.log(data.value); //被点击的radio的value值
+                ch.chA = "";
+                ch.chB = "";
+                ch.chC = "";
+                ch.chD = "";
+                ch.chE = "";
+                ch.chD = "";
+                //指定选中项
+                if (data.value == "A") {
+                    ch.chA = "checked";
+                }
+                if (data.value == "B") {
+                    ch.chB = "checked";
+                }
+                if (data.value == "C") {
+                    ch.chC = "checked";
+                }
+                if (data.value == "D") {
+                    ch.chD = "checked";
+                }
+                if (data.value == "E") {
+                    ch.chE = "checked";
+                }
+                if (data.value == "F") {
+                    ch.chF = "checked";
+                }
+                
+                
+                var obj = {
+                    testid: testid,
+                    overCount: overCount,
+                    page:page,
+                    data: testList
+                };
+                for (var i = 0; i < testKey.length; i++){
+                    if (testKey[i].testid == testid) {
+                        testKey[i] = obj;
+                    }
+                }
+                localStorage.setItem("testKey", JSON.stringify(testKey));
+                //改变选择器的样式
+                $("#formIfram").find("span").eq(page).removeClass("layui-badge-rim").addClass("layui-badge layui-bg-green");
+
+            });
+
+            //监听复选框选中事件/
+            form.on("checkbox(checkbox)", function (obj) {
+
+                var ch = testList[page];
+                if (ch.chA == "" && ch.chB == "" && ch.chC == "" && ch.chD == "" && ch.chE == "" && ch.chF == "") {
+                    overCount = testKey[0].overCount + 1;
+                }
+                //指定选中项
+                if (obj.value == "A") {
+                    if (obj.elem.checked) {
+                        ch.chA = "checked";
+                    } else {
+                        ch.chA = "";
+                    }
+                }
+                if (obj.value == "B") {
+                    if (obj.elem.checked) {
+                        ch.chB = "checked";
+                    } else {
+                        ch.chB = "";
+                    }
+                }
+                if (obj.value == "C") {
+                    if (obj.elem.checked) {
+                        ch.chC = "checked";
+                    } else {
+                        ch.chC = "";
+                    }
+                }
+                if (obj.value == "D") {
+                    if (obj.elem.checked) {
+                        ch.chD = "checked";
+                    } else {
+                        ch.chD = "";
+                    }
+
+                }
+                if (obj.value == "E") {
+                    if (obj.elem.checked) {
+                        ch.chE = "checked";
+                    } else {
+                        ch.chE = "";
+                    }
+                }
+                if (obj.value == "F") {
+                    if (obj.elem.checked) {
+                        ch.chF = "checked";
+                    } else {
+                        ch.chF = "";
+                    }
+                }
+                
+                var obj = {
+                    testid: testid,
+                    overCount: overCount,
+                    page:page,
+                    data: testList
+                };
+                for (var i = 0; i < testKey.length; i++) {
+                    if (testKey[i].testid == testid) {
+                        testKey[i] = obj;
+                    }
+                }
+                localStorage.setItem("testKey", JSON.stringify(testKey));
+                //改变选择器的样式
+                $("#formIfram").find("span").eq(page).removeClass("layui-badge-rim").addClass("layui-badge layui-bg-green");
+            });
+
+
+
+
+            ///打开题目选择卡(ok)
+            $("#mun").on("click", function () {
+                layer.open({
+                    type: 1,
+                    title: false,                   // 标题
+                    offset: 'r',                    // 定位 左边
+                    closeBtn: 0,                    // 关闭按钮
+                    anim: 2,                        // 动画
+                    shadeClose: true,               // 点击遮罩关闭
+                    shade: 0.8,                     // 半透明
+                    area: ['70%', '100%'], 
+                    content: $("#formIfram"),
+                    shadeClose: true
+                });
+            });
+        });
+
+        AddTestNo();
+        //添加题号信息(ok)
+        function AddTestNo() {
+            var mun = "";
+            for (var i = 0; i < testCount;i++){
+                if (i+1 < 10) {
+                    mun += '<span class="layui-badge-rim" style="margin:3px 6px;padding:5px 5px" onclick="chk(' + i + ')">' + (i + 1) + '</span>';
+                } else {
+                    mun += '<span class="layui-badge-rim" style="margin:3px 3px;padding:5px 3px" onclick="chk(' + i + ')">' + (i + 1) + '</span>';
+                }
+            }
+            $("#formIfram").html(mun);
+
+            for (var i = 0; i < testList.length; i++){
+                if (testList[i].chA + testList[i].chB + testList[i].chC + testList[i].chD + testList[i].chE + testList[i].chF!="") {
+                    $("#formIfram").find("span").eq(i).removeClass("layui-badge-rim").addClass("layui-badge layui-bg-green");
+                }
+            }
+            
+        }
+
+
+        ///选择题号(ok)
+        function chk(index) {
+            page = index;
+            GetTEST(page);
+            //改变选择器的样式
+            $("#formIfram").find("span").eq(page).removeClass("layui-badge-rim").addClass("layui-badge layui-bg-orange");
+            $("#viewDaan").text("显示本题正确答案");
+            setTimeout(function () {
+                layui.use("layer", function () {
+                    var layer = layui.layer;
+                    layer.closeAll();
+                });
+            }, 300);
+        }
+
+        ///从testlist加载试题的详细信息(ok)
+        function rendTest(obj) {
+            var btnTyle = "radio";
+            var top = "0px";
+            var filter = "radio";
+            if (obj.t_type == "多选题" || obj.t_type == "多项选择题") {
+                btnTyle = "checkbox";
+                top = "12px";
+                filter = "checkbox";
+            }
+
+            var daan = "";
+
+            if (obj.t_a != "" && obj.t_a != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="A" title="A、' + obj.t_a + '" ' + testList[page].chA + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (obj.t_b != "" && obj.t_b != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="B" title="B、' + obj.t_b + '" ' + testList[page].chB + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (obj.t_c != "" && obj.t_c != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="C" title="C、' + obj.t_c + '" ' + testList[page].chC + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (obj.t_d != "" && obj.t_d != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="D" title="D、' + obj.t_d + '" ' + testList[page].chD + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (obj.t_e != "" && obj.t_e != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="E" title="E、' + obj.t_e + '" ' + testList[page].chE + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (obj.t_f != "" && obj.t_f != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '"  lay-skin="primary" name="sex" value="F" title="F、' + obj.t_f + '" ' + testList[page].chF + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            var html = '<div class="layui-row layui-col-space10">' +
+                '<div class="layui-col-md12" style= "padding:0px 20px;line-height:32px"> ' + obj.t_desc + '</div>' +
+                '<div class="layui-col-md12" style="padding:20px 20px;font-weight:bold;line-height:30px">' + (page + 1) + '、' + obj.t_title + ' <span style="color:#FF5722;" onclick="biaoji('+page+')">标记</span></div>' +
+                '</div >' + daan;
+
+            $("#form").html(html);
+        }
+
+        function biaoji(page) {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                $("#formIfram").find("span").eq(page).append('<b class="layui-badge-dot" style="margin-left:3px"></b>');
+                layer.msg("标记成功");
+            });
+        }
+
+        //获取单条试题内容(ok)
+        function GetTEST(page) {
+            layui.use(["form", "layer"], function () {
+                var form = layui.form
+                    , layer = layui.layer;
+
+                $.ajax({
+                    url: configUrl + "/api/test/gdt/GetTest?testid=" + testList[page].testid,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+
+                        //console.log(res.data);
+                        rendTest(res.data[0]);
+                        form.render();
+                    }
+                });
+            });
+            
+            
+        }
+        
+        ////下一题事件(ok)
+        $("#next").on("click", function () {
+            if (page < testCount) {
+                page = page + 1;
+                GetTEST(page);
+                $("#viewDaan").text("显示本题正确答案");
+            }
+
+        })
+
+        /////上一题事件(ok)
+        $("#pro").on("click", function () {
+            //alert(page);
+            if (page > 0) {
+                page = page - 1;
+                GetTEST(page);
+                $("#viewDaan").text("显示本题正确答案");
+            }
+        })
+
+
+        $("#view").on("click", function () {
+            $("#viewDaan").text("本题正确答案：" + testList[page].daan);
+        });
+        
+    </script>
+</body>
+</html>

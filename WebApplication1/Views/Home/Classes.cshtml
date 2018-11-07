@@ -1,0 +1,107 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Classes</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-fluid" style="padding:18px 20px">
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-md12">
+                <button class="layui-btn" id="addbtn">
+                    <i class="layui-icon">&#xe608;</i> 创建班组
+                </button>
+            </div>
+        </div>
+        <div class="layui-row layui-col-space10">
+            <table id="tb" lay-filter="mytable"></table>
+        </div>
+        <script type="text/html" id="barDemo">
+            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </script>
+    </div>
+
+    <script>
+        var b_id = "@ViewBag.b_id";
+        var userInfo = parent.userInfo;
+        var configUrl = parent.configUrl;
+
+        databind();
+        function databind() {
+            layui.use(["layer", "table"], function () {
+                var layer = layui.layer
+                    , table = layui.table;
+                table.render({
+                    elem: "#tb",
+                    height: "full-100",
+                    url: configUrl + "/api/deparment/gdt/query?b_id=" + b_id,
+                    page: true,
+                    method: "post",
+                    contentType: "application/json",
+                    skin: "row",
+                    size: "lg",
+                    cellMinWidth: 100,
+                    cols: [[
+                        { field: "c_name", title: "班组名称" },
+                        { field: "c_work_name", title: "班组职能" },
+                        { field: "c_work_desc", title: "职能描述" },
+                        { field: "u_count", title: "成员", width: 60, style: "text-align:right;background:#5FB878;color:#fff" },
+                        { title: "操作", toolbar: "#barDemo", width: 120 },
+                    ]]
+                });
+                ////调用父级方法，打开添加班组的对话框
+                $("#addbtn").on("click", function () {
+                    parent.addClass();
+                });
+
+                ////监听工具条事件处理
+                table.on("tool(mytable)", function (obj) {
+                    var layEevent = obj.event;
+                    if (layEevent == "edit") {
+                        //alert(obj.data.c_id);
+                        ///调用父级窗口的打开修改班组信息对话框
+                        parent.updateClass(obj.data.c_id);
+                    }
+
+                    if (layEevent == "del") {
+                        layer.confirm('确定要删除该班级的信息吗?', { icon: 3, title: '提示' }, function (index) {
+                            //do something
+                            layer.load();
+                            $.ajax({
+                                url: configUrl + "/api/deparment/gdt/delclass?c_id=" + obj.data.c_id,
+                                type: "post",
+                                contentType: "application/json",
+                                success: function (res) {
+                                    layer.closeAll("loading");
+                                    if (res.code == 0) {
+                                        obj.del();
+                                        layer.msg(res.msg, { icon: 1, shade: 0.5 }, function () {
+                                            parent.getList(parent.com_id);
+                                        });
+                                    } else {
+                                        layer.msg(res.msg, { icon: 2, shade: 0.5 });
+                                    }
+                                }
+                            });
+                            layer.close(index);
+                        });
+                        
+                    }
+                });
+
+            });
+        }
+        
+    </script>
+</body>
+</html>

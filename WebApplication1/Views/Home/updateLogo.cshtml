@@ -1,0 +1,186 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>updateLogo</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-container" style="padding-top:30px">
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-row layui-col-space20">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">集团名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="head_name" required lay-verify="required" placeholder="请输入集团名称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">集团规模</label>
+                        <div class="layui-input-block">
+                            <select name="head_size" lay-filter="aihao">
+                                <option value="300人以下">300人以下</option>
+                                <option value="300-500人">300-500人</option>
+                                <option value="500-1000人">500-1000人</option>
+                                <option value="1000-3000人">1000-3000人</option>
+                                <option value="3000人以上">3000人以上</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">公办地址</label>
+                        <div class="layui-input-block">
+                            <input name="head_address" type="text" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="layui-col-xs12 layui-col-sm4 layui-col-md3">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">集团LOGO</label>
+                        <div class="layui-input-block">
+                            <button type="button" class="layui-btn" id="upload">
+                                <i class="layui-icon">&#xe67c;</i>重新上传
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">图像预览</label>
+                        <div class="layui-input-block" style="line-height:40px;color:#ff6a00" id="ImgPreview">
+                            如果您已经上传图片，请在此处进行预览
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item">
+                        <p class="layui-elem-quote">注：请在第一次使用系统前上传您集团（公司）的LOGO。当图像选择完成后，可在图像预览区浏览您上传的是否正确</p>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit lay-filter="send">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo;
+        var configUrl = parent.configUrl;
+        var head_logo = "";
+        layui.use(["form", "layer", "upload"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , upload = layui.upload;
+            //查询集团的信息
+            $.ajax({
+                url: configUrl +"/api/headoffice/gdt/queryheadoffice?head_id=" + userInfo.data[0].head_id,
+                contentType: "application/json",
+                type: "post",
+                success: function (res) {
+                    //alert(JSON.stringify(res));
+                    //设置元素
+                    head_logo = res.data[0].head_logo;
+                    if (head_logo != "" && head_logo != null) {
+                        $('#ImgPreview').empty();
+                        $('#ImgPreview').append('<a class="layui-upload-img"><img src="'+configUrl+ res.data[0].head_logo + '" style="height:60px"></a>');
+                    } 
+
+                    form.val("form", {
+                        "head_name": res.data[0].head_name,
+                        "head_size": res.data[0].head_size,
+                        "head_address": res.data[0].head_address
+                    });
+                }
+            });
+
+            //重新上传LOGO文件
+            upload.render({
+                elem: "#upload"
+                , url: configUrl +'/api/files/gdt/uploadfile' //上传接口
+                , done: function (res) {
+                    //上传完毕回调
+                }
+                , error: function () {
+                    //请求异常回调
+                }
+                , choose: function (obj) {
+                    //将每次选择的文件追加到文件队列
+                    var files = obj.pushFile();
+
+                    //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                    obj.preview(function (index, file, result) {
+                        console.log(index); //得到文件索引
+                        console.log(file); //得到文件对象
+                        console.log(result); //得到文件base64编码，比如图片
+                        $('#ImgPreview').empty();
+                        $('#ImgPreview').append('<a class="layui-upload-img"><img src="' + result + '" alt="' + file.name + '" style="height:60px"></a>');
+
+                        //obj.resetFile(index, file, '123.jpg'); //重命名文件名，layui 2.3.0 开始新增
+
+                        //这里还可以做一些 append 文件列表 DOM 的操作
+
+                        //obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
+                        //delete files[index]; //删除列表中对应的文件，一般在某个事件中使用
+                    });
+                }
+                , done: function (res, index, upload) {
+                    //假设code=0代表上传成功
+                    if (res.code == 0) {
+                        head_logo = "/files/" + res.data.src;
+                    }
+                }
+            });
+
+            //修改集团信息
+            form.on("submit(send)", function (obj) {
+                layer.load();
+                obj.field.head_logo = head_logo;
+                console.log(obj.field);
+                $.ajax({
+                    url: configUrl + "/api/headoffice/gdt/updatehead_office?head_id=" + userInfo.data[0].head_id,
+                    contentType: "application/json",
+                    type: "post",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res.code == "A0000") {
+                            layer.msg(res.msg, { icon: 1, time: 3000, shade: 0.5 });
+                        } else {
+                            layer.msg(res.msg, { icon: 2, time: 3000, shade: 0.5 });
+                        }
+                    }
+                });
+                return false;
+            
+            })
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+[v-cloak] {
+    display:none;
+}
+
+
+.hidden-danger {
+    margin-top: 10px;
+}
+
+.hidden-danger table{
+    border: 1px solid #999;
+    color: #666;
+    border-collapse: collapse;
+    font: 14px Helvetica Neue,Helvetica,PingFang SC,Tahoma,Arial,sans-serif;
+}
+
+.hidden-danger table th,.hidden-danger table tr, .hidden-danger table tr td{
+    border: 1px solid #e2e2e2;
+}
+
+.hidden-danger table tr td{
+    height: 20px;
+    color: #666;
+    padding: 9px 15px;
+}
+
+.hidden-danger table thead tr:first-child {
+    padding: 30px 10px;
+    line-height: 38px;
+    font-size: 15px;
+    font-weight: 600;
+    background: #eee;
+}
+.hidden-danger table thead tr th{
+    padding: 10px 10px;
+    font-weight: 500;
+}
+
+.hidden-danger table tbody tr td {
+    width: 38px;
+    text-align: left;
+}
+
+.tr-over {
+    background: #eeeeee;
+}
+
+.no-bg {
+    background: #fff;
+}
+
+.f-size {
+    font-size: 18px;
+    font-weight: 600px;
+}

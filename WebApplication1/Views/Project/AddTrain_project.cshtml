@@ -1,0 +1,426 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AddTrain_project</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    @*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+
+    <script src="~/layui/layui.js"></script>
+    <link href="~/layui/css/layui.css" rel="stylesheet" />
+    <script src="~/js/zagJs.js"></script>
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0
+        }
+
+        .btns {
+            margin-left: 8px;
+            cursor: pointer
+        }
+
+        .layui-input-block {
+            margin-left: 140px;
+            min-height: 36px;
+        }
+        /* 下拉多选样式 需要引用*/
+        select[multiple] + .layui-form-select > .layui-select-title > input.layui-input {
+            border-bottom: 0
+        }
+
+        select[multiple] + .layui-form-select dd {
+            padding: 0;
+        }
+
+        select[multiple] + .layui-form-select .layui-form-checkbox[lay-skin=primary] {
+            margin: 0 !important;
+            display: block;
+            line-height: 36px !important;
+            position: relative;
+            padding-left: 26px;
+        }
+
+            select[multiple] + .layui-form-select .layui-form-checkbox[lay-skin=primary] span {
+                line-height: 36px !important;
+                float: none;
+            }
+
+            select[multiple] + .layui-form-select .layui-form-checkbox[lay-skin=primary] i {
+                position: absolute;
+                left: 10px;
+                top: 0;
+                margin-top: 9px;
+            }
+
+        .multiSelect {
+            line-height: normal;
+            height: auto;
+            padding: 4px 10px;
+            overflow: hidden;
+            min-height: 38px;
+            margin-top: -38px;
+            left: 0;
+            z-index: 99;
+            position: relative;
+            background: none;
+        }
+
+            .multiSelect a {
+                padding: 2px 5px;
+                background: #908e8e;
+                border-radius: 2px;
+                color: #fff;
+                display: block;
+                line-height: 20px;
+                height: 20px;
+                margin: 2px 5px 2px 0;
+                float: left;
+            }
+
+                .multiSelect a span {
+                    float: left;
+                }
+
+                .multiSelect a i {
+                    float: left;
+                    display: block;
+                    margin: 2px 0 0 2px;
+                    border-radius: 2px;
+                    width: 8px;
+                    height: 8px;
+                    padding: 4px;
+                    position: relative;
+                    -webkit-transition: all .3s;
+                    transition: all .3s
+                }
+
+                    .multiSelect a i:before, .multiSelect a i:after {
+                        position: absolute;
+                        left: 8px;
+                        top: 2px;
+                        content: '';
+                        height: 12px;
+                        width: 1px;
+                        background-color: #fff
+                    }
+
+                    .multiSelect a i:before {
+                        -webkit-transform: rotate(45deg);
+                        transform: rotate(45deg)
+                    }
+
+                    .multiSelect a i:after {
+                        -webkit-transform: rotate(-45deg);
+                        transform: rotate(-45deg)
+                    }
+
+                    .multiSelect a i:hover {
+                        background-color: #545556;
+                    }
+
+        .multiOption {
+            display: inline-block;
+            padding: 0 5px;
+            cursor: pointer;
+            color: #999;
+        }
+
+            .multiOption:hover {
+                color: #5FB878
+            }
+
+        /*font-face {font-family: "iconfont"; src: url('data:application/x-font-woff;charset=utf-8;base64,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') format('woff')}*/
+        .iconfont {
+            font-family: "iconfont" !important;
+            font-size: 16px;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .icon-fanxuan:before {
+            content: "\e837";
+        }
+
+        .icon-quanxuan:before {
+            content: "\e623";
+        }
+
+        .icon-qingkong:before {
+            content: "\e63e";
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid">
+        <div style="height:20px"></div>
+        <form id="form" class="layui-form" lay-filter="form">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">计划名称</div>
+                <div class="layui-col-xs12 layui-col-sm8 layui-col-sm7">
+                    <input type="text" name="t_name" required lay-verify="required" placeholder="请输入培训计划名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">开始时间</div>
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-sm3">
+                    <input type="text" id="start_time" name="start_time" readonly required lay-verify="required" placeholder="请选择培训开始时间" class="layui-input">
+                </div>
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">结束时间</div>
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-sm3">
+                    <input type="text" id="end_time" name="end_time" readonly required lay-verify="required" placeholder="请选择培训结束时间" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">课程名称</div>
+                <div class="layui-col-xs12 layui-col-sm8 layui-col-sm7">
+                    <select id="score_name" name="score_name" multiple>
+                        <option value="">请选择课程名称</option>
+                        <option value="国家安全生产方针">国家安全生产方针</option>
+                        <option value="企业安全生产应急管理九条规定">企业安全生产应急管理九条规定</option>
+                        <option value="新员工安全生产培训">新员工安全生产培训</option>
+                        <option value="消防安全培训">消防安全培训</option>
+                        <option value="特种设备">特种设备</option>
+                        <option value="电工安全">电工安全</option>
+                        <option value="安全工程师">安全工程师</option>
+                        <option value="职业卫生">职业卫生</option>
+                        <option value="班组长安全管理知识培训">班组长安全管理知识培训</option>
+                        <option value="事故案例分析">事故案例分析</option>
+                        <option value="安全违法行为">安全违法行为</option>
+                        <option value="其它">其它</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">参与单位</div>
+                <div class="layui-col-xs12 layui-col-sm8 layui-col-sm7">
+                    <select name="b_id" lay-verify="required" id="b_id" multiple lay-search="">
+                        
+                    </select>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">课程类型</div>
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-sm3">
+                    <select name="score_type" lay-verify="required">
+                        <option value="">请选择课各类型</option>
+                        <option value="定期">定期</option>
+                        <option value="脱岗">脱岗</option>
+                        <option value="病假">病假</option>
+                        <option value="离岗">离岗</option>
+                        <option value="产假">产假</option>
+                        <option value="转岗">转岗</option>
+                        <option value="其它">其它</option>
+                    </select>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">计划时长</div>
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-sm3">
+                    <select name="time_length" lay-verify="required">
+                        <option value="">请选择计划时长</option>
+                        <option value="1">一天</option>
+                        <option value="2">二天</option>
+                        <option value="3">三天</option>
+                        <option value="4">四天</option>
+                        <option value="5">五天</option>
+                        <option value="6">六天</option>
+                        <option value="7">一周</option>
+                        <option value="10">十天</option>
+                        <option value="15">半个月</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">备注信息</div>
+                <div class="layui-col-xs12 layui-col-sm8 layui-col-sm7">
+                    <textarea name="descs" placeholder="请输入培训计划备注信息" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px">负责人</div>
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-sm3">
+                    <select id="work_usid" name="work_usid" lay-verify="required">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-col-sm1 layui-hide-xs" style="text-align:right;line-height:36px"></div>
+                <div class="layui-col-xs6 layui-col-sm2 layui-col-sm2">
+                    <button class="layui-btn" lay-submit lay-filter="send">立即提交</button>
+                </div>
+                <div class="layui-col-xs6 layui-col-sm2 layui-col-sm2">
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+
+
+        </form>
+
+</div>
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl;
+        var t_id = "@ViewBag.t_id";
+        var usid = 0;
+        
+        
+
+        layui.use(["form", "layer", "laydate","code"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , laydate = layui.laydate
+                , $ = layui.$;
+
+            // 代码块
+            layui.code({
+                title: 'html',
+                encode: true,
+                about: false
+
+            });
+            
+
+            laydate.render({
+                elem:"#end_time"
+            });
+            laydate.render({
+                elem: "#start_time"
+            });
+
+            
+
+            //查询集团公司内所有部门
+            var url = configUrl+"/api/Train_project/gdt/QueryDeparment?head_id=" + userInfo.data[0].head_id;
+            $.ajax({
+                url: url,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    html = "";
+                    for (var i = 0; i < res.data.length; i++){
+                        html += "<optgroup label='"+res.data[i].com_name+"'>";
+                        for (var ii = 0; ii < res.data[i].list.length;ii++){
+                            html += "<option value='"+res.data[i].list[ii].b_id+"'>"+ res.data[i].list[ii].b_name+"</option>";
+                        }
+                        html += "</optgroup>";
+                    }
+                    $("#b_id").html(html);
+                    //console.log("deparment");
+                    //console.log(res);
+                    form.render();
+                }
+            });
+
+            //查询集团下所有管理员信息
+            $.ajax({
+                url: configUrl+"/api/Train_project/gdt/QueryAllHead?head_id=" + userInfo.data[0].head_id,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    var html = "<option value=''>请选择执行负责人</option>";
+                    if (res.code == 0) {
+                        for (var i = 0; i < res.data.length; i++) {
+                            html += "<option value='"+res.data[i].us_id+"'>"+res.data[i].real_name+"</option>";
+                        }
+                    }
+                    $("#work_usid").html(html);
+                    form.render();
+                }
+            });
+
+
+            if (t_id != "") {
+                $.ajax({
+                    url: configUrl+"/api/Train_project/gdt/Query?t_id=" + t_id,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        //alert(JSON.stringify(res));
+                        if (res.code == 0) {
+                            usid = res.data[0].us_id;
+                            form.val("form", {
+                                "t_name": res.data[0].t_name,
+                                "start_time": timestampToTime2(res.data[0].start_time),
+                                "end_time": timestampToTime2(res.data[0].end_time),
+                                "score_type": res.data[0].score_type,
+                                "time_length": res.data[0].time_length,
+                                "descs": res.data[0].descs,
+                                "work_usid": ""+res.data[0].work_usid
+                            });
+                            var slist = res.data[0].score_name.split(',');
+                            $('select[name="score_name"]').val(slist);
+                            var b_list = res.data[0].b_id.split(',');
+                            $('select[name="b_id"]').val(b_list);
+                            form.render();
+                        }
+                    }
+                });
+            }
+
+            //send
+            var sendurl = configUrl+"/api/Train_project/gdt/Add";
+            if (t_id != "") {
+                sendurl = configUrl+"/api/Train_project/gdt/Update?t_id=" + t_id;
+            }
+            form.on("submit(send)", function (obj) {
+                if (t_id != "") {
+                    if (usid != userInfo.data[0].us_id) {
+                        layer.msg("您无权修改该数据信息");
+                        return false;
+                    }
+                }
+                obj.field.score_name = obj.field.score_name.join(',');
+                obj.field.b_id = obj.field.b_id.join(',');
+                obj.field.head_id = userInfo.data[0].head_id;
+                obj.field.us_id = userInfo.data[0].us_id;
+                console.log(obj.field);
+                layer.load(1);
+                $.ajax({
+                    url: sendurl,
+                    type: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res > 0) {
+                            parent.getDeparment();
+                            layer.msg("操作成功", { icon: 1 }, function () {
+                                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                parent.layer.close(index); //再执行关闭 
+                            });
+                        } else {
+                            layer.msg("操作失败", { icon: 2 });
+                        }
+                    }
+                });
+                
+                return false;
+            });
+
+        });
+
+        
+    </script>
+</body>
+</html>

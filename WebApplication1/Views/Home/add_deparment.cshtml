@@ -1,0 +1,146 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>add_deparment</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-fluid" style="margin-top:30px">
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">
+                    
+                </div>
+                <div class="layui-col-xs12 layui-col-sm8 layui-col-md10" style="line-height:34px;color:#009688">
+                    @*<input type="text" name="com_name" class="layui-input" readonly style="border:0px;width:100%">*@
+                    <span id="com_name"></span>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">
+                    部门名称
+                </div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <input type="text" name="b_name" required lay-verify="required" placeholder="请输入部门名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">
+                    职能名称
+                </div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <input type="text" name="b_work_name" required lay-verify="required" placeholder="请输入部门职能名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">
+                    职能描述
+                </div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <textarea name="b_work_desc" placeholder="请输入部门职能描述" class="layui-textarea"></textarea>
+                </div>
+                
+            </div>
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-xs12 layui-col-sm2 layui-hide-xs" style="line-height:38px;text-align:right">
+                </div>
+                <div class="layui-col-xs12 layui-col-sm8" style="line-height:34px">
+                    <button class="layui-btn" lay-submit lay-filter="send">提交数据</button>
+                    <button id="reset" type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <script>
+        var configUrl = parent.configUrl;
+        var userInfo = parent.userInfo;
+        var com_id = parent.com_id;
+        var b_id = "@ViewBag.b_id";
+        layui.use(["form", "layer"], function () {
+            var form = layui.form
+                , layer = layui.layer;
+            //根据公司id查询出子公司的名称
+            $.ajax({
+                url: configUrl + "/api/headoffice/gdt/querychildcompany?com_id=" + com_id,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    //console.log(res.data);
+                    //form.val("form",{
+                    //    "com_name": res.data[0].com_name
+                    //});
+                    //form.render();
+                    $("#com_name").text("正在为 " + res.data[0].com_name +" 添加部门");
+                }
+            });
+
+            //var s = "api/company/gdt/query_deparment";
+            if (b_id != "" && b_id != null) {
+                $("#reset").fadeOut(10);
+                //查询指定部门的信息
+                $.ajax({
+                    url: configUrl+"/api/company/gdt/query_deparment?b_id=" + b_id,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        console.log(res.data);
+                        form.val("form", {
+                            "b_name": res.data[0].b_name,
+                            "b_work_desc": res.data[0].b_work_desc,
+                            "b_work_name": res.data[0].b_work_name
+                        })
+                        form.render();
+                    }
+                });
+            }
+
+            //上传数据信息
+            form.on("submit(send)", function (obj) {
+                
+                obj.field.com_id = com_id;
+                layer.load();
+                var url = configUrl + "/api/company/gdt/add_deparment";
+                if (b_id != "" && b_id != null) {
+                    url = configUrl +"/api/company/gdt/update_deparment?b_id="+b_id;
+                }
+                $.ajax({
+                    url: url,
+                    contentType: "application/json",
+                    type: "post",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res.code == "A0000") {
+                            layer.msg(res.msg, { icon: 1, shade: 0.5 });
+                            ///重新加载数据
+                            parent.getList(com_id);
+                            setTimeout(function () {
+                                //当你在iframe页面关闭自身时
+                                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                parent.layer.close(index); //再执行关闭 
+                            }, 2000);
+                        } else {
+                            layer.msg(res.msg, { icon: 2, shade: 0.5 });
+                        }
+                    }
+                });
+                
+                return false;
+            })
+        });
+    </script>
+</body>
+</html>

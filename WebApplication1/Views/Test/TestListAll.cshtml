@@ -1,0 +1,173 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>TestListAll</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+            background: #f0f0f0
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="fom" class="layui-fluid" style="margin:0 auto;background:#fff;width:96%;height:96%;"> 
+        <table id="tb" lay-filter="mytable"></table>
+        <script  type="text/html" id="barDemo">
+            <span class="layui-icon layui-icon-add-circle-fine" title="添加试题" lay-event="Addtest" style="color:#2F4056;font-weight:bold;padding:0px 3px"> </span>
+            <span class="layui-icon layui-icon-release" title="发布" style="color:#009688;padding:0px 3px"> </span>
+            <span class="layui-icon layui-icon-close" title="删除" style="color:#FF5722;padding:0px 3px"> </span>
+        </script>
+        <div id="page"></div>
+    </div>
+
+
+    
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl
+            , page = 1
+            , data = []
+            , testCount = 1
+            , obj = {};
+
+
+        
+
+        databind(page);
+        ////获取到题库数据
+        function databind(page) {
+            $.ajax({
+                url: configUrl + "/api/test_classify/gdt/query?head_id=" + userInfo.data[0].head_id + "&pages=" + page + "&count=18",
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+                    data = res.data;
+                    page = res.page;//得到总页数
+                    testCount = res.testCount;
+                }
+            });
+        }
+
+        rendTablt();
+        
+        //将数据加载到数据表格
+        function rendTablt() {
+            layui.use(["table", "layer"], function () {
+                var table = layui.table
+                    , layer = layui.layer;
+                table.render({
+                    elem: "#tb",
+                    height: "full-120",
+                    data: data,
+                    skin: "nob",
+                    limit: 18,
+                    size:"sm",
+                    cellMinWidth: 100,
+                    cols: [[
+                        { field: "t_name", title: "题库名称" }
+                        , { field: "tcount", title: "试题数量" }
+                        , {
+                            field: "t_types", title: "试卷类型",
+                            templet: function (d) {
+                                if (d.t_types == 0) {
+                                    return "<span style='color:#ff6a00'>普通试卷</span>";
+                                } else if (d.t_types==1) {
+                                    return "厂级教育";
+                                } else if (d.t_types == 2) {
+                                    return "车间级教育";
+                                } else if (d.t_types == 3) {
+                                    return "班组级教育";
+                                }
+                            }
+                        }
+                        , {
+                            field: "create_time", title: "创建时间",
+                            templet: function (d) {
+                                return timestampToTime2(d.create_time);
+                            }
+                        }
+                        , { title: "操作", toolbar: "#barDemo", width: 150, fixed: "right", align: "center" }
+                    ]],
+                    done: function () {
+                        $("#tb").find("thead").css("display", "none");
+                    }
+                });
+
+                table.on("tool(mytable)", function (obj) {
+                    var Event = obj.event;
+                    if (Event == "Addtest") {
+                        layer.open({
+                            type: 2,
+                            shade: 0.2,
+                            title: false, //不显示标题
+                            content: "/Test/Upload_File?classify_id=" + obj.data.id,
+                            area: ["260px", "160px"]
+                        });
+                    }
+
+                })
+            });
+        }
+
+        Object.defineProperty(obj, "count", {
+            get: function () {
+                return this._count;
+            },
+            set: function (val) {
+                if (obj.count != val) {
+                    laypages(obj.count);
+                }
+                this._count = val;
+            }
+        });
+
+        laypages(page);
+
+        function laypages(_count) {
+            layui.use(["layer", "laypage"], function () {
+                var layer = layui.layer
+                    , laypage = layui.laypage;
+                laypage.render({
+                    elem: "page",
+                    count: _count,
+                    limit: 18,
+                    layout: ['prev', 'page', 'next','limit'],
+                    jump: function (obj, first) {
+                        //obj包含了当前分页的所有参数，比如：
+                        console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+                        console.log(obj.limit); //得到每页显示的条数
+
+                        //首次不执行
+                        if (!first) {
+                            //do something
+                            page = obj.curr;
+                            databind(page);
+                            rendTablt();
+                        }
+                    }
+                });
+            });
+        }
+        
+        
+
+        
+    </script>
+</body>
+</html>

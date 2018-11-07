@@ -1,0 +1,249 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>addHead</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/layui.js"></script>
+</head>
+<body>
+    <div class="layui-container" style="padding-top:30px"> 
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-row layui-col-space20">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">集团名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="head_name" required lay-verify="required" placeholder="请输入集团名称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">集团规模</label>
+                        <div class="layui-input-block">
+                            <select name="head_size" lay-filter="aihao">
+                                <option value="300人以下">300人以下</option>
+                                <option value="300-500人">300-500人</option>
+                                <option value="500-1000人">500-1000人</option>
+                                <option value="1000-3000人">1000-3000人</option>
+                                <option value="3000人以上">3000人以上</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">公办地址</label>
+                        <div class="layui-input-block">
+                            <input name="head_address" type="text" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">登录账号</label>
+                        <div class="layui-input-block">
+                            <input name="login_name" type="text" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">登录密码</label>
+                        <div class="layui-input-block">
+                            <input name="login_pwd" type="text" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm4 layui-col-md3">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">集团LOGO</label>
+                        <div class="layui-input-block">
+                            <button type="button" class="layui-btn" id="upload">
+                                <i class="layui-icon">&#xe67c;</i>上传LOGO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">图像预览</label>
+                        <div class="layui-input-block" style="line-height:40px;color:#ff6a00" id="ImgPreview">
+                            如果您已经上传图片，请在此处进行预览
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item">
+                        <p class="layui-elem-quote">注：请在第一次使用系统前上传您集团（公司）的LOGO。当图像选择完成后，可在图像预览区浏览您上传的是否正确</p>
+                    </div>
+                </div>
+
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit lay-filter="send">立即提交</button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+        </form>
+        
+    </div>
+
+
+    <script>
+        //存储用户上传的LOGO的路径
+        var head_logo = "";
+        var configUrl = parent.configUrl;
+        //alert(configUrl);
+        layui.use(["form", "laydate", "layer","upload"], function () {
+            var form = layui.form
+                , laydate = layui.laydate
+                , layer = layui.layer
+                , upload = layui.upload;
+            form.on("submit(send)", function (obj) {
+                layer.load();
+                var date = new Date();
+                //设置管理员的其它属性值
+                obj.field.head_logo = head_logo;
+                obj.field.real_name = "系统管理员";
+                obj.field.us_id = 0;
+                obj.field.gender = 1;
+                obj.field.age = date.getFullYear() - 18 + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+                obj.field.us_no = "";
+                obj.field.mobile = "";
+                obj.field.tel = "";
+                obj.field.work_state = 1;
+                obj.field.position = "";
+                obj.field.head_id = 0;
+                obj.field.com_id = 0;
+                obj.field.b_id = 0;
+                obj.field.c_id = 0;
+                obj.field.verify = 0;
+                //判断logo不为空
+                if (head_logo == "") {
+                    layer.msg("请选择集团LOGO文件", { icon: 2, time: 3000,shade: 0.5 });
+                    layer.closeAll("loading");
+                    return false;
+                }
+               
+                //上传集团部位信息
+                $.ajax({
+                    url: configUrl+"/api/headoffice/gdt/addhead",
+                    contentType: "application/json",
+                    type: "post",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        if (res > 0) {//如果集团总部信息上传成功
+                            //上传总部管理员信息
+                            obj.field.head_id = res;
+                            $.ajax({
+                                url: configUrl +"/api/users/gdt/addusers",
+                                contentType: "application/json",
+                                type: "post",
+                                data: JSON.stringify(obj.field),
+                                success: function (req) {
+                                    if (req.code == "A0000") {//上传集团系统管理员登录信息成功
+                                        obj.field.us_id = req.usid;
+                                        //添加集团系统管理员详情请权限信息
+                                        $.ajax({
+                                            url: configUrl +"/api/users/gdt/adduser_detail?usid=" + req.usid,
+                                            contentType: "application/json",
+                                            type: "post",
+                                            data: JSON.stringify(obj.field),
+                                            success: function (rep) {
+                                                if (rep.code == "A0000") {
+                                                    layer.closeAll("loading");
+                                                    layer.msg("集团信息设置成功", { icon: 1, time: 3000, shade: 0.4 });
+                                                    setTimeout(function () {
+                                                        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                                        parent.layer.close(index); //再执行关闭
+                                                    }, 3000);
+                                                    return false;
+                                                } else {
+                                                    layer.closeAll("loading");
+                                                    layer.msg("在添加集团管理员权限时失败！", { icon: 2, time: 3000, shade: 0.4 });
+                                                    return false;
+                                                }
+                                            }
+                                        });
+                                    } else if (req.code == "A0001") {
+                                        layer.closeAll("loading");
+                                        layer.msg("用户信息不能重复，请输入其它登录名！", { icon: 2, time: 3000, shade: 0.4 });
+                                        return false;
+                                    } else {
+                                        layer.closeAll("loading");
+                                        layer.msg("在添加集团管理员信息时失败！", { icon: 2, time: 3000, shade: 0.4 });
+                                    }
+                                }
+                            });
+
+                        } else {
+                            layer.closeAll("loading");
+                            layer.msg("集团信息添加失败！", { icon: 2, time: 2000, shade: 0.4 });
+                            return false;
+                        }
+                    }
+                });
+                return false;
+            });
+
+            upload.render({
+                elem: "#upload"
+                , url: configUrl +'/api/files/gdt/uploadfile' //上传接口
+                , done: function (res) {
+                    //上传完毕回调
+                }
+                , error: function () {
+                    //请求异常回调
+                }
+                ,choose:function (obj) {
+                    //将每次选择的文件追加到文件队列
+                    var files = obj.pushFile();
+
+                    //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                    obj.preview(function (index, file, result) {
+                        console.log(index); //得到文件索引
+                        console.log(file); //得到文件对象
+                        console.log(result); //得到文件base64编码，比如图片
+                        $('#ImgPreview').empty();
+                        $('#ImgPreview').append('<a class="layui-upload-img"><img src="' + result + '" alt="' + file.name + '" style="height:60px"></a>');
+
+                        //obj.resetFile(index, file, '123.jpg'); //重命名文件名，layui 2.3.0 开始新增
+
+                        //这里还可以做一些 append 文件列表 DOM 的操作
+
+                        //obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
+                        //delete files[index]; //删除列表中对应的文件，一般在某个事件中使用
+                    });
+                }
+                , done: function (res, index, upload) {
+                    //假设code=0代表上传成功
+                    if (res.code == 0) {
+                        head_logo = "/files/"+res.data.src;
+                        
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Mytest</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            background: #f0f0f0
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="layui-fluid" style="width:96%;height:90%;margin:10px auto;background:#fff">
+        <button id="remove" class="layui-btn layui-btn-danger" style="margin-top:20px;"><i class="layui-icon"></i> 清空练习缓存</button>
+        <table id="tb" lay-filter="tb"></table>
+        <script type="text/html" id="bar">
+            <a class="layui-btn layui-btn-xs" lay-event="detail">练习</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">模拟考</a>
+
+        </script>
+    </div>
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl;
+        var t_types = "@ViewBag.t_types";//三级教育的类别 0 为普通 1厂级 2 车间 3班组
+
+       
+
+        ///清空缓存
+        function removeStorage() {
+            localStorage.removeItem("testKey");
+        }
+        ///预缓存数据
+        //localStorage.removeItem("testKey");
+        if (localStorage.getItem("testKey") == null) {
+            localStorage.setItem("testKey", "[]");
+        }
+        console.log("prosess");
+        console.log(JSON.parse(localStorage.getItem("testKey")));
+
+        
+
+        layui.use(["table", "layer"], function () {
+            var table = layui.table
+                , layer = layui.layer;
+
+            //监听清除缓存
+            $("#remove").on("click", function () {
+                layer.confirm('清除缓存将会清楚您所有的练习记录。确定要执行该操作吗?', { icon: 3, title: '提示' }, function (index) {
+                    //do something
+                    removeStorage();
+                    layer.close(index);
+                });
+            });
+
+            getMytest();
+            function getMytest() {
+                var url = configUrl + "/api/test/gdt/Mytest?us_id=" + userInfo.data[0].us_id;
+                if (t_types != "") {
+                    url = configUrl + "/api/test/gdt/Mytest?us_id=" + userInfo.data[0].us_id + "&t_types=" + t_types + "";
+                }
+                
+                $.ajax({
+                    url: url,
+                    type: "post",
+                    contentType: "application/json",
+                    success: function (res) {
+                        //console.log("我的试题");
+                        //console.log(res.data);
+                        table.render({
+                            elem: "#tb",
+                            height: "full-140",
+                            cellMinWidth: 100,
+                            data: res.data,
+                            skin: "row",
+                            size:"sm",
+                            cols: [[
+                                {
+                                    title: "进度", width: 68, fixed: "left", style: "color:#ff6a00",
+                                    templet: function (d) {
+                                        var theTestid = d.testid;
+                                        var arry = JSON.parse(localStorage.getItem("testKey"));
+                                        if (arry.length > 0) {
+                                            for (var i = 0; i < arry.length; i++) {
+                                                if (arry[i].testid == theTestid) {
+                                                    var pros = arry[i].overCount / arry[i].data.length % 100;
+                                                    return pros.toFixed(1) + "%";
+                                                } else {
+                                                    return "0.0%";
+                                                }
+                                            }
+                                        } else {
+                                            return "0.0%";
+                                        }
+
+                                    }
+                                }
+                                , { field: "t_name", title: "试题名称" }
+                                , {
+                                    field: "t_types", title: "级别", style:"layui-hide-xs",
+                                    templet: function (d) {
+                                        switch (d.t_types) {
+                                            case 0:
+                                                return "普通试题";
+                                                break;
+                                            case 1:
+                                                return "厂级";
+                                                break;
+                                            case 2:
+                                                return "车间级";
+                                                break;
+                                            case 3:
+                                                return "班组级";
+                                                break;
+                                        }
+                                    }
+                                }
+                                , { field: "tcount", title: "试题总数", align: "right", style: "color:#ff6a00", style: "layui-hide-xs" }
+                                , { toolbar: "#bar", width: 140, fixed: "right", title: "操作", align: "center" }
+                            ]]
+                        });
+                    }
+                });
+            }
+
+
+            table.on("tool(tb)", function (obj) {
+                var data = obj.data;
+                var ev = obj.event;
+                //alert(data.testid);
+                if (ev === "detail") {
+                    if (localStorage.getItem("testKey") == null) {
+                        localStorage.setItem("testKey", "[]");
+                    }
+                    layer.open({
+                        type: 2,
+                        title: "在线练习",
+                        content: "/Test/sdudent?classify_id=" + data.testid,
+                        area: ["96%", "90%"],
+                        cancel: function (index, layero) {
+                            if (confirm('确定要退出本次练习吗？')) { //只有当点击confirm框的确定时，该层才会关闭
+                                getMytest();
+                                layer.close(index);
+                            }
+                            return false;
+                        }
+                    });
+                }
+
+                if (ev === "del") {
+                    layer.open({
+                        type: 2,
+                        title: "",
+                        closeBtn: 0,
+                        content: "/Test/StartTest?testid=" + data.testid,
+                        area: ["96%", "90%"]
+                    });
+                }
+            })
+        });
+    </script>
+</body>
+</html>

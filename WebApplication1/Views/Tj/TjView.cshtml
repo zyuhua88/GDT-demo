@@ -1,0 +1,418 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>TjView</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <script src="~/vue.js"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0
+        }
+    </style>
+</head>
+<body>
+    <div style="height:14px"></div>
+    <div class="layui-fluid" id="apps">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>考试合格率统计</legend>
+        </fieldset>
+        <div class="layui-row layui-col-space10" style="background:#fff;">
+
+            <div id="apps"></div>
+
+        </div>
+
+    </div>
+
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-xs12 layui-col-sm6 layui-md4">
+                <div id="main" style="height:280px;padding:20px 20px"></div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-md4">
+                <div id="main2" style="height:280px;padding:20px 20px"></div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-md4">
+                <div id="main3" style="height:280px;padding:20px 20px"></div>
+            </div>
+            <div class="layui-col-xs12 layui-col-sm6 layui-md4">
+                <div id="main4" style="height:280px;padding:20px 20px"></div>
+            </div>
+        </div>
+        <blockquote class="layui-elem-quote" style="background:#fff;margin-top:15px"><b style="font-size:15px;color:#2F4056">课件、资料查看情况（时长）展示</b></blockquote>
+
+        <div class="layui-row layui-col-space10" id="chars">
+            @*<div class="layui-col-xs6 layui-col-sm3 layui-md3">
+                <div id="mains" style="height:160px;padding:20px 20px"></div>
+            </div>*@
+        </div>
+
+    </div>
+
+    <script src="~/js/echarts-all.js"></script>
+    
+
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl
+            , us_id = "@ViewBag.us_id";
+
+        var score = 70;//初始定义试题的合格分数
+        if (us_id == "") {
+            us_id = userInfo.data[0].us_id;
+        }
+
+        layui.use(["layer", "element"], function () {
+            var layer = layui.layer,
+                element = layui.element;
+            //加载用户的考试详情
+            var html1 = "";
+            $.ajax({
+                url: configUrl + "/api/Tj/gdt/QueryUserTest?us_id=" + us_id,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    console.log(res);
+                    //图一
+                    var dataTitle = [];
+                    var data1 = [];
+                    //图二
+                    var data2 = [];
+                    //图二
+                    var data3 = [];
+
+                    //图四
+                    var data4 = [];
+
+                    if (res.code == 0) {
+                        for (var i = 0; i < res.data.length; i++) {
+                            //图一
+                            dataTitle.push(res.data[i].t_name);
+                            var obj1 = { "value": res.data[i].max, "name": res.data[i].t_name };
+                            data1.push(obj1);
+                            //图二
+                            var obj2 = { "value": res.data[i].min, "name": res.data[i].t_name};
+                            data2.push(obj2);
+                            //图三
+                            var obj3 = { "value": res.data[i].avg, "name": res.data[i].t_name};
+                            data3.push(obj3);
+                            //图四
+                            var obj4 = { "value": res.data[i].count, "name": res.data[i].t_name };
+                            data4.push(obj4);
+                        }
+
+                    } else {
+
+                    }
+
+                    var myChart = echarts.init(document.getElementById('main'));
+                    var option = {
+                        title: {
+                            text: '最高得分统计图',
+                            subtext: '个人真实数据',
+                            x: 'left'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            x: 'center',
+                            y: 'bottom',
+                            data: dataTitle
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                mark: { show: true },
+                                dataView: { show: true, readOnly: false },
+                                magicType: {
+                                    show: true,
+                                    type: ['pie', 'funnel']
+                                },
+                                restore: { show: true },
+                                saveAsImage: { show: true }
+                            }
+                        },
+                        calculable: true,
+                        series: [
+                            {
+                                name: '最高得分',
+                                type: 'pie',
+                                radius: [40, 70],
+                                center: ['50%', 120],
+                                roseType: 'radius',
+                                width: '60%',       // for funnel
+                                background:'#fff',
+                                max: 40,            // for funnel
+                                itemStyle: {
+                                    normal: {
+                                        label: {
+                                            show: true
+                                        },
+                                        labelLine: {
+                                            show: true
+                                        }
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true
+                                        },
+                                        labelLine: {
+                                            show: true
+                                        }
+                                    }
+                                },
+                                data: data1
+                            }
+                        ],
+                        color: ["rgb(0,150,136)"]
+                    };
+                    myChart.setOption(option);
+                    $("#main").css("background", "#fff");
+
+                    var option2 = option;
+                    option2.title.text = "最低得分统计图";
+                    option2.series[0].name = "最低得分";
+                    option2.series[0].data = data2;
+                    option2.color = ["rgb(255,87,34)"];
+                    echarts.init(document.getElementById("main2")).setOption(option2);
+                    $("#main2").css("background", "#fff");
+
+                    var option3 = option;
+                    option3.title.text = "平均得分统计图";
+                    option3.series[0].name = "平均得分";
+                    option3.series[0].data = data3;
+                    option3.color = ["rgb(47,64,86)"];
+                    echarts.init(document.getElementById("main3")).setOption(option3);
+                    $("#main3").css("background", "#fff");
+
+                    var option4 = option;
+                    option4.title.text = "参加模拟考次数统计图";
+                    option4.series[0].name = "参考次数";
+                    option4.series[0].data = data4;
+                    option4.color = ["rgb(95,184,120)"];
+                    echarts.init(document.getElementById("main4")).setOption(option4);
+                    $("#main4").css("background", "#fff");
+                }
+            });
+
+
+            ///////加载用户学习资料的学习完成度
+            $.ajax({
+                url: configUrl + "/api/Tj/gdt/QueryFile?us_id=" + us_id,
+                type: "post",
+                contentType: "application.json",
+                success: function (res) {
+                    var Toption = {
+                        backgroundColor:"#ffffff",
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            x: 'left',
+                            data: ['学习时长', '剩余时长']
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                mark: { show: false },
+                                dataView: { show: true, readOnly: false },
+                                magicType: {
+                                    show: false,
+                                    type: ['pie', 'funnel'],
+                                    option: {
+                                        funnel: {
+                                            x: '50%',
+                                            width: '80%',
+                                            funnelAlign: 'center',
+                                            max: 100
+                                        }
+                                    }
+                                },
+                                restore: { show: false },
+                                saveAsImage: { show: true }
+                            }
+                        },
+                        calculable: true,
+                        series: [
+                            {
+                                name: '学习时长统计',
+                                type: 'pie',
+                                radius: ['50%', '70%'],
+                                itemStyle: {
+                                    normal: {
+                                        label: {
+                                            show: false
+                                        },
+                                        labelLine: {
+                                            show: false
+                                        }
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            position: 'center',
+                                            textStyle: {
+                                                fontSize: '30',
+                                                fontWeight: 'bold'
+                                            }
+                                        }
+                                    }
+                                },
+                                data: [
+                                    { value: 335, name: '学习时长' },
+                                    { value: 310, name: '剩余时长' }
+                                ]
+                            }
+                        ]
+                    };
+                    var htmls = "";
+                    if (res.code == 0) {
+                        for (var i = 0; i < res.data.length; i++) {
+                            htmls = '<div class="layui-col-xs6 layui-col-sm3 layui-md3">' +
+                                '<div style="height:40px;line-height:40px" class="layui-elip"><b style="text-align:center">'+res.data[i].title+'</b></div>'+
+                                '<div id= "mains' + i + '" style= "height:240px;padding:20px 20px;" ></div>' +
+                                '</div>';
+                            $("#chars").append(htmls);
+                            var myoption = Toption;
+                            myoption.series[0].data = [{ value: res.data[i].times, name: "学习时长" },
+                            { value: 100 - res.data[i].times, name: "剩余时长" }];
+                            var myCharts = echarts.init(document.getElementById('mains' + i));
+                            $("#mains" + i).css("background","#fff");
+                            myCharts.setOption(myoption);
+                        }
+                    } else {
+                        htmls = '<div class="layui-col-xs6 layui-col-sm3 layui-md3" style="background:#fff">' +
+                            '<div id= "mains' + i + '" style= "height:160px;padding:20px 20px" ></div>' +
+                            '</div>';
+                        $("#chars").append(htmls);
+
+                        var myoption = Toption;
+                        myoption.series[0].data = [{ value:0, name: "学习时长" },
+                        { value: 0, name: "剩余时长" }];
+                        var myCharts = echarts.init(document.getElementById('mains' + i));
+
+                        myCharts.setOption(myoption);
+                    }
+                    
+
+                }
+            });
+
+            
+            
+            
+            //加载用户的考试合格率
+            $.ajax({
+                url: configUrl+"/api/Tj/gdt/QueryUserTestAVG?us_id=" + userInfo.data[0].us_id + "&score=" + score,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    if (res.data) {
+                        var titles = [];
+                        var datas = [];
+                        var datan = [];
+                        var height = 1;
+                        for (var i = 0; i < res.data.length; i++) {
+                            titles.push(res.data[i].testname);
+                            
+                            datas.push(res.data[i].yes);
+                            datan.push(res.data[i].no);
+                            height += 1;
+                        }
+                        $("#apps").css("height", height * 60 + "px");
+                        var myChart = echarts.init(document.getElementById('apps'));
+                        
+                        var option = {
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                }
+                            },
+                            legend: {
+                                data: ["及格率","不及格率"]
+                            },
+                            grid: {
+                                left: '5%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: {
+                                type: 'value'
+                            },
+                            yAxis: {
+                                type: 'category',
+                                data: titles
+                            },
+                            series: [
+                                {
+                                    name: '合格率',
+                                    type: 'bar',
+                                    stack: '百分比',
+                                    barWidth: 30,
+                                    itemStyle: {
+                                        normal: {
+                                            color: '#009688'
+                                        }
+                                    },
+                                    label: {
+                                        normal: {
+                                            show: true,
+                                            position: 'insideRight'
+                                        }
+                                    },
+                                    data: datas
+                                },
+                                {
+                                    name: '不合格率',
+                                    type: 'bar',
+                                    stack: '百分比',
+                                    barWidth: 30,
+                                    itemStyle: {
+                                        normal: {
+                                            color: '#FFB800'
+                                        }
+                                    },
+                                    label: {
+                                        normal: {
+                                            show: true,
+                                            position: 'insideRight'
+                                        }
+                                    },
+                                    data: datan
+                                }
+                            ]
+                        };
+
+                        myChart.setOption(option);
+                    } else {
+                        $("#apps").html("<div style='height:100px;line-height:100px;text-align:center;font-size:16px;'>没有数据</div>");
+                    }
+                    
+                    
+
+                    
+                }
+            });
+        });
+    </script>
+</body>
+</html>

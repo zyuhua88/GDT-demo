@@ -1,0 +1,88 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ProjectList</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/js/zagJs.js"></script>
+
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0
+        }
+    </style>
+</head>
+<body>
+    <div style="height:5%"></div>
+    <div class="layui-fluid" style="width:96%;height:90%;overflow-y:auto">
+        <div class="layui-row layui-col-space12" id="rows">
+            <div class="layui-col-xs12 layui-col-sm6" style="margin-top:12px">
+                @*<div class="layui-card">
+                    <div class="layui-card-header">时间</div>
+                    <div class="layui-card-body">
+                        <h3>用时</h3>
+                        <p>培训内容</p>
+                        <p>培训说明</p>
+                        <p style="text-align:right;color:#999;border-top:1px solid #f0f0f0;margin-top:20px">负责人 </p>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl
+            , t_id = "@ViewBag.t_id";
+
+        layui.use(["layer","element"], function () {
+            var layer = layui.layer
+                , element = layui.element;
+            layer.load(1);
+            $.ajax({
+                url: configUrl+"/api/Train_project/gdt/QueryProjectlist?t_id="+t_id,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    var html = "";
+                    console.log(res);
+                    if (res.code == 0) {
+                        for (var i = 0; i < res.data.length;i++){
+                            html += '<div class="layui-col-xs12 layui-col-sm6" style="margin-top:12px">' +
+                                '<div class="layui-card">' +
+                                '<div class="layui-card-header">于<span style="color:#ff6a00">' + timestampToTime2(res.data[i].create_time) + '</span> 由 ' + res.data[i].real_name + ' 创建</div>' +
+                                '<div class="layui-card-body">' +
+                                '<b style="color:#009688">用时：'+res.data[i].work_length+'</b><br/>' +
+                                '<p><b>培训内容：</b></p>' +
+                                '<p>' + res.data[i].project_body+'</p>' +
+                                '<p><b>培训说明</b></p>' +
+                                '<p>' + res.data[i].l_desc + '</p>' +
+                                '<p style="text-align:right;color:#999;border-top:1px solid #f0f0f0;margin-top:20px">负责人：' + res.data[i].work_name+' </p>' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>';
+                        }
+                        
+                    } else {
+                        html += "<div style='color:#999;font-size:22px;text-align:center;line-height:100px'>没有数据信息</div>";
+                    }
+                    layer.closeAll("loading");
+                    $("#rows").html(html);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

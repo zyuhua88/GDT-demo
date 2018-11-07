@@ -1,0 +1,111 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>TestError</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <style>
+        html,body{background:#f0f0f0}
+        .forms{height:34px;line-height:34px}
+        .dataform {
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            padding: 20px 2%;
+            width: 96%;
+            margin: 10px auto;
+            overflow:hidden
+        }
+            .dataform:hover {background:#f9f9f9
+            }
+
+    </style>
+</head>
+<body>
+    <div class="layui-fluid" style="width:96%;height:80%;">
+        <blockquote class="layui-elem-quote" style="background:#FFF;color:#333;width:100%;margin-left:-16px;margin-top:10px">
+            进行错题练习时，只有回答正确，系统才会自动跳转至一下题，并将该题从您的错题库中删除；<br />
+            注：错题只有在您进行模拟考试时才会产生哦！
+        </blockquote>
+    </div>
+    <div class="layui-fluid" style="width:96%;height:80%;background:#fff;min-height:300px">
+        <div style="height:2px"></div>
+        <div id="form">
+            
+        </div>
+
+
+    </div>
+    
+    <script>
+        var userInfo = parent.userInfo
+            , configUrl = parent.configUrl;
+
+        var us_id = userInfo.data[0].us_id;
+        layui.use(["layer"], function () {
+            var layer = layui.layer;
+            //加载我的错库库
+            getErrorList();
+
+            function getErrorList() {
+                layer.load(1);
+                $.ajax({
+                    url: configUrl + "/api/test/gdt/TestErrorList?us_id=" + us_id,
+                    type: "post",
+                    contentType: "application/json",
+                    success: function (res) {
+                        if (res.code == 0) {
+                            $("#form").html(renderHtml(res.data));
+                        } else {
+                            $("#form").html("<div style='height:200px;line-height:140px'>" + res.msg + "</div>");
+                        }
+                        layer.closeAll();
+                    }
+                });
+            }
+
+            function renderHtml(array) {
+                var html = "";
+                for (var i = 0; i < array.length; i++) {
+                    html += '<div class="layui-row dataform" onclick="gotoDetail(' + array[i].id + ')">' +
+                        '<div class="layui-row forms"> <b>' + array[i].t_name + '</b></div>' +
+                        '<div class="layui-row layui-col-space12 forms">' +
+                        '<div class="layui-col-xs4 layui-col-sm3 layui-col-md2 forms">共计：' + array[i].TestCount + ' 题</div>' +
+                        '<div class="layui-col-xs3 layui-col-sm3 layui-col-md2 forms">用户：<span style="color:#009688">' + array[i].MyTestCount + '</span> 人</div>' +
+                        '<div class="layui-col-xs5 layui-col-sm3 layui-col-md2 forms" style="color:#ff6a00">' + timestampToTime2(array[i].create_time) + '上线</div>' +
+                        '</div>' +
+                        '</div >';
+                }
+                return html;
+            }
+
+
+        });
+
+        function gotoDetail(id) {
+            layui.use(["form","layer"], function () {
+                var layer = layui.layer
+                layer.open({
+                    type: 2,
+                    title: "",
+                    content: "/Test/TestErrorList?classify_id="+id,
+                    area: ["100%", "70%"],
+                    shadeClose: true,
+                    closeBtn:0
+                });
+            });
+
+            
+        }
+
+    </script>
+</body>
+</html>

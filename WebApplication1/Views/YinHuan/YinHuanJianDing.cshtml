@@ -1,0 +1,141 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>YinHuanJianDing</title>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+</head>
+<body>
+    <div class="layui-fluid" style="width:90%;margin:20px auto"> 
+        <form class="layui-form" lay-filter="form">
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">确认人</label>
+                        <div class="layui-input-block">
+                            <input type="text" readonly  name="yh_queren_user" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">确认日期</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="yh_queren_time" class="layui-input" id="test4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">整改状态</label>
+                        <div class="layui-input-block">
+                            <input type="radio" value="3" name="yh_send_state" lay-skin="primary" title="整改完成" checked>
+                            <input type="radio" value="4" name="yh_send_state" lay-skin="primary" title="未整改">
+                            <input type="radio" value="5" name="yh_send_state" lay-skin="primary" title="未完全整改">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row" style="text-align:right">
+                <button class="layui-btn" id="send" lay-submit lay-filter="send">
+                    <i class="layui-icon">&#xe609;</i> 提交评定结果
+                </button>
+
+                <button class="layui-btn layui-btn-warm" id="close">
+                    <i class="layui-icon">&#x1006;</i> 关闭
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        var configUrl = parent.configUrl
+            , userInfo = parent.userInfo;
+        var yh_no = "@ViewBag.yh_no";
+
+        layui.use(["form", "layer", "laydate"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , laydate = layui.laydate
+                , date = new Date();
+
+            //设置时间数据信息
+            var month = date.getMonth() + 1;
+            var getDate = date.getDate();
+            var addDay = date.getDate() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+            if (getDate < 10) {
+                getDate = "0" + getDate;
+            }
+            if (addDay + 1 < 10) {
+                addDay = "0" + addDay;
+            }
+
+            //渲染日期类型
+            laydate.render({
+                elem: "#test4",
+                value: date.getFullYear() + "-" + month + "-" + getDate
+            });
+
+            form.val("form", {
+                "yh_queren_user": userInfo.data[0].real_name
+            });
+
+
+            //close
+            $("#close").on("click", function () {
+                close();
+                return false;
+            });
+
+            function close() {
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭 
+                return false;
+            }
+
+            //send
+            form.on('submit(send)', function (data) {
+                console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+                console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+                console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+                data.field.yh_queren_user = userInfo.data[0].us_id;
+                layer.load(1);
+                $.ajax({
+                    url: configUrl + "/api/yinhuan/gdt/UpdateJianDing?yh_no=" + yh_no,
+                    type: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify(data.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res.code == 0) {
+                            layer.msg(res.msg, { icon: 1 });
+                            parent.getdata();
+                        } else {
+                            layer.msg(res.msg, { icon: 2 });
+                        }
+                    }
+                });
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+            
+        });
+    </script>
+</body>
+</html>

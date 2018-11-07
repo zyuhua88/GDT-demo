@@ -1,0 +1,477 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>StartTest</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <style>
+        html,body{height:100%;overflow:hidden}
+    </style>
+</head>
+<body>
+    <blockquote class="layui-elem-quote" style="color:#FF5722;font-size:16px;font-weight:bold">剩余时间：<span id="hh"></span> 分 <span id="mm"></span> 秒</blockquote>
+    <div class="layui-icon layui-icon-template-1" style="position:absolute;right:10px;top:10px;font-size:25px;background:#333;color:#fff;width:40px;height:40px;border-radius:5px;text-align:center;line-height:40px;cursor:pointer" id="mun"></div>
+    <div class="layui-fluid" style="width:90%;height:90%; margin:30px auto 0px auto;position:relative">
+
+        <form class="layui-form" id="form" style="height:75%;overflow-y:auto;display:block;overflow-x:hidden"></form>
+
+        <div class="layui-row layui-col-space1">
+            <div class="layui-col-xs3 layui-col-sm9" style="text-align:right"><button class="layui-btn" id="pro">上一题</button></div>
+            <div class="layui-col-xs3 layui-col-sm1"><button id="next" class="layui-btn">下一题</button></div>
+            <div class="layui-col-xs3 layui-col-sm1"><button id="jiaojuan" class="layui-btn">交 卷</button></div>
+            <div class="layui-col-xs3 layui-col-sm1"><button id="close" class="layui-btn layui-bg-orange">关 闭</button></div>
+        </div>
+        @*<div class="layui-form-item">
+            <div class="layui-input-block" style="text-align:right">
+
+                <button class="layui-btn" id="pro">上一题</button>
+                <button id="next" class="layui-btn">下一题</button>
+                <button id="jiaojuan" class="layui-btn">提交试卷</button>
+                <button id="close" class="layui-btn layui-bg-orange">关闭窗口</button>
+            </div>
+        </div>*@
+    </div>
+    <div style="height:200px">
+        @*占位框*@
+    </div>
+    <div id="formIfram" style="width:100%;height:100%;background:#f0f0f0;">
+        @*加载试题的编号*@
+    </div>
+    <script>
+        var userInfo = parent.userInfo,
+            configUrl = parent.configUrl,
+            testid = "@ViewBag.testid",
+            testList = [],//试题列表
+            testCount = 0,//总题数
+            page = 0,//当前第几题
+            defen_a = 1,//是非题每题得分
+            defen_b = 1,//单选题每题得分
+            defen_c = 1,//多选题每题得分
+            defen_d=1;//案例题每题得分
+
+        layui.use(["form","layer"], function () {
+            var form = layui.form
+                , layer = layui.layer;
+
+            ////动态查询数据
+            $.ajax({
+                url: configUrl + "/api/test/gdt/GetTestConfig?testid="+testid,
+                type: "post",
+                contentType: "application/json",
+                async: false,
+                success: function (res) {
+
+                    if (res.code === 0) {
+                        defen_a = res.defen_a;
+                        defen_b = res.defen_b;
+                        defen_c = res.defen_c;
+                        defen_d = res.defen_d;
+                        var mun = '<div style="height: 20px"></div>';
+                        for (var i = 0; i < res.data.length; i++){
+                            res.data[i].checkA = "";
+                            res.data[i].checkB = "";
+                            res.data[i].checkC = "";
+                            res.data[i].checkD = "";
+                            res.data[i].checkE = "";
+                            res.data[i].checkF = "";
+                            res.data[i].defen = 0;
+                            if (i + 1 < 10) {
+                                mun += '<span class="layui-badge-rim" style="margin:3px 6px;padding:5px 5px" onclick="chk('+i+')">' + (i + 1) + '</span>';
+                            } else {
+                                mun += '<span class="layui-badge-rim" style="margin:3px 3px;padding:5px 3px" onclick="chk('+i+')">' + (i + 1) + '</span>';
+                            }
+
+                        }
+                        $("#formIfram").html(mun);
+                        //console.log(res.data);
+                        testList = res.data;
+                        testCount = res.data.length;
+                        rendTest(page);
+                        form.render();
+                    } else {
+                        layer.msg(res.msg, {icon:2});
+                    }
+                }
+            });
+
+            ////关闭考试窗口事件
+            $("#close").on("click", function () {
+                layer.confirm('您确定要关闭模拟考试窗口吗?', { icon: 3, title: '提示' }, function (index) {
+                    //当你在iframe页面关闭自身时
+                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                    parent.layer.close(index); //再执行关闭
+                    layer.close(index);
+                });
+
+            });
+
+            //交卷事件
+            $("#jiaojuan").on("click", function () {
+                jiaojuan();
+            })
+
+            ///监听单选
+            form.on('radio(radio)', function (data) {
+                console.log(data.elem); //得到radio原始DOM对象
+                console.log(data.value); //被点击的radio的value值
+                if (data.value == testList[page].daan) {
+                    testList[page].defen = defen(page);
+                } else {
+                    testList[page].defen = 0;
+                }
+                ///本题所有选择项都为不选中状态
+                testList[page].checkA = "";
+                testList[page].checkB = "";
+                testList[page].checkC = "";
+                testList[page].checkD = "";
+                testList[page].checkE = "";
+                testList[page].checkF = "";
+                //指定选中项
+                if (data.value == "A") {
+                    testList[page].checkA = "checked";
+                }
+                if (data.value == "B") {
+                    testList[page].checkB = "checked";
+                }
+                if (data.value == "C") {
+                    testList[page].checkC = "checked";
+                }
+                if (data.value == "D") {
+                    testList[page].checkD = "checked";
+                }
+                if (data.value == "E") {
+                    testList[page].checkE = "checked";
+                }
+                if (data.value == "F") {
+                    testList[page].checkF = "checked";
+                }
+                //alert(testList[page].defen);
+
+                //改变选择器的样式
+                $("#formIfram").find("span").eq(page).removeClass("layui-badge-rim").addClass("layui-badge layui-bg-green");
+
+            });
+
+            //监听复选框选中事件/
+            form.on("checkbox(checkbox)", function (obj) {
+                var cd = "";
+                $("input:checkbox[name='sex']:checked").each(function (i) {
+                    cd += $(this).val();
+                });
+                if (cd == testList[page].daan) {
+                    testList[page].defen = defen(page);
+                } else {
+                    testList[page].defen = 0;
+                }
+                //指定选中项
+                if (obj.value == "A") {
+                    if (obj.elem.checked) {
+                        testList[page].checkA = "checked";
+                    } else {
+                        testList[page].checkA = "";
+                    }
+                }
+                if (obj.value == "B") {
+                    if (obj.elem.checked) {
+                        testList[page].checkB = "checked";
+                    } else {
+                        testList[page].checkB = "";
+                    }
+                }
+                if (obj.value == "C") {
+                    if (obj.elem.checked) {
+                        testList[page].checkC = "checked";
+                    } else {
+                        testList[page].checkC = "";
+                    }
+                }
+                if (obj.value == "D") {
+                    if (obj.elem.checked) {
+                        testList[page].checkD = "checked";
+                    } else {
+                        testList[page].checkD = "";
+                    }
+
+                }
+                if (obj.value == "E") {
+                    if (obj.elem.checked) {
+                        testList[page].checkE = "checked";
+                    } else {
+                        testList[page].checkE = "";
+                    }
+                }
+                if (obj.value == "F") {
+                    if (obj.elem.checked) {
+                        testList[page].checkF = "checked";
+                    } else {
+                        testList[page].checkF = "";
+                    }
+                }
+
+                //改变选择器的样式
+                $("#formIfram").find("span").eq(page).removeClass("layui-badge-rim").addClass("layui-badge layui-bg-green");
+            });
+
+            
+
+
+            ///打开题目选择卡
+            $("#mun").on("click", function () {
+                layer.open({
+                    type: 1,                        // 类型
+                    title: false,                   // 标题
+                    offset: 'r',                    // 定位 左边
+                    closeBtn: 0,                    // 关闭按钮
+                    anim: 2,                        // 动画
+                    shadeClose: true,               // 点击遮罩关闭
+                    shade: 0.8,                     // 半透明
+                    area: ['70%', '100%'], 
+                    content: $("#formIfram"),
+                    shadeClose: true
+                });
+            });
+
+
+        });
+
+
+        ////下一题事件
+        $("#next").on("click", function () {
+            layui.use("form", function () {
+                var form = layui.form;
+                if (page < testCount) {
+                    page = page + 1;
+                    rendTest(page);
+                    form.render();
+                }
+            });
+
+        })
+        /////上一题事件
+        $("#pro").on("click", function () {
+
+            layui.use("form", function () {
+                var form = layui.form;
+                if (page > 0) {
+                    page = page - 1;
+                    rendTest(page);
+                    form.render();
+                }
+            });
+        })
+
+
+        ///从testlist加载试题的详细信息
+        function rendTest(index) {
+            var list = testList[index];
+            var daan = "";
+            var btnTyle = "radio";
+            var top = "0px";
+            var filter = "radio";
+            if (list.t_type == "多选题" || list.t_type == "多项选择题") {
+                btnTyle = "checkbox";
+                top = "12px";
+                filter = "checkbox";
+            }
+            if (list.t_a != "" && list.t_a != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="A" title="A、' + list.t_a + '" ' + list.checkA + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (list.t_b != "" && list.t_b != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="B" title="B、' + list.t_b + '" ' + list.checkB + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (list.t_c != "" && list.t_c != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="C" title="C、' + list.t_c + '" ' + list.checkC + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (list.t_d != "" && list.t_d != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="D" title="D、' + list.t_d + '" ' + list.checkD + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (list.t_e != "" && list.t_e != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '" lay-skin="primary" name="sex" value="E" title="E、' + list.t_e + '" ' + list.checkE + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            if (list.t_f != "" && list.t_f != null) {
+                daan += '<div class="layui-row" style="padding-left:30px;margin-top:' + top + '">' +
+                    '<input type="' + btnTyle + '"  lay-skin="primary" name="sex" value="F" title="F、' + list.t_f + '" ' + list.checkF + ' lay-filter="' + filter + '">' +
+                    '</div>';
+            }
+            var html = '<div class="layui-row layui-col-space10">' +
+                '<div class="layui-col-md12" style= "padding:0px 20px;line-height:32px"> ' + list.t_desc + '</div>' +
+                '<div class="layui-col-md12" style="padding:20px 20px;font-weight:bold;line-height:30px">' + (index + 1) + '、' + list.t_title + ' <span style="color:#FF5722" onclick="biaoji('+index+')">标记</span></div>' +
+                '</div >' + daan;
+
+            $("#form").html(html);
+        }
+
+        function biaoji(page) {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                $("#formIfram").find("span").eq(page).append('<b class="layui-badge-dot" style="margin-left:3px"></b>');
+                layer.msg("标记成功");
+            });
+        }
+
+        ///选择题号
+        function chk(index) {
+            layui.use(["layer","form"], function () {
+                var layer = layui.layer
+                    , form = layui.form;
+                page = index;
+                //改变选择器的样式
+                $("#formIfram").find("span").eq(page).removeClass("layui-badge-rim").addClass("layui-badge layui-bg-orange");
+                rendTest(page);
+                layer.closeAll();
+                form.render();
+            });
+
+        }
+
+
+        //交卷的方法
+        function jiaojuan() {
+            layui.use("layer", function () {
+                var layer = layui.layer;
+                var MyDefen = 0;
+                for (var i = 0; i < testList.length; i++) {
+                    MyDefen += testList[i].defen;
+                }
+
+                if (MyDefen >= 80) {//说明及格了
+                    layer.msg('正在交卷', {
+                        icon: 16
+                        , shade: 0.3
+                        , time: 0
+                    });
+                    var array = [];
+                    for (var i = 0; i < testList.length; i++) {
+                        if (testList[i].defen == 0) {
+                            array.push(testList[i].id);
+                        }
+                    }
+                    //alert(JSON.stringify(array));
+                    //int testid, int score, int us_id, dynamic data
+                    $.ajax({
+                        url: configUrl + "/api/test/gdt/JiaoJuan?testid=" + testid + "&score=" + MyDefen + "&us_id=" + userInfo.data[0].us_id,
+                        type: "post",
+                        contentType: "application/json",
+                        data: JSON.stringify({ testid: array }),
+                        success: function (res) {
+                            layer.closeAll("loading");
+                            if (res.code === 0) {
+                                layer.msg(res.msg, { icon: 1 }, function () {
+                                    //当你在iframe页面关闭自身时
+                                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                    parent.layer.close(index); //再执行关闭
+                                });
+                            } else {
+                                layer.msg(res.msg, { icon: 2 });
+                            }
+                        }
+                    });
+                } else {
+
+                    var overTest = 0;
+                    for (var i = 0; i < testList.length; i++){
+                        if (testList[i].checkA == "checked" || testList[i].checkB == "checked" || testList[i].checkC == "checked" || testList[i].checkD == "checked" || testList[i].checkE == "checked" || testList[i].checkF == "checked") {
+                            overTest = overTest + 1;
+                        }
+                    }
+                    if (overTest > testCount * 0.8) {
+                        layer.msg('正在交卷', {
+                            icon: 16
+                            , shade: 0.3
+                            , time: 0
+                        });
+                        var array = [];
+                        for (var i = 0; i < testList.length; i++) {
+                            if (testList[i].defen == 0) {
+                                array.push(testList[i].id);
+                            }
+                        }
+
+                        $.ajax({
+                            url: configUrl + "/api/test/gdt/JiaoJuan?testid=" + testid + "&score=" + MyDefen + "&us_id=" + userInfo.data[0].us_id,
+                            type: "post",
+                            contentType: "application/json",
+                            data: JSON.stringify({ testid: array }),
+                            success: function (res) {
+                                layer.closeAll("loading");
+                                if (res.code === 0) {
+                                    layer.msg(res.msg, { icon: 1 }, function () {
+                                        //当你在iframe页面关闭自身时
+                                        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                        parent.layer.close(index); //再执行关闭
+                                    });
+                                } else {
+                                    layer.msg(res.msg, { icon: 2 });
+                                }
+                            }
+                        });
+                    } else {
+                        layer.msg("请完成总题数的至少80%才可以交卷！", {icon:2});
+                    }
+                }
+            });
+        }
+
+        
+
+        //返回每题后台设置的得分
+        function defen(page) {
+            if (testList[page].t_type == "是非题" || testList[page].t_type == "判断题") {
+                return defen_a;
+            }
+            if (testList[page].t_type == "单选题" || testList[page].t_type == "单项选择题") {
+                return defen_b;
+            }
+            if (testList[page].t_type == "多选题" || testList[page].t_type == "多项选择题") {
+                return defen_c;
+            }
+            if (testList[page].t_type == "案例题" || testList[page].t_type == "案例分析") {
+                return defen_d;
+            }
+        }
+        ////考试倒计时
+        var hh = 90;
+        var mm = 0;
+        var settime= setInterval(function () {
+            if (hh > 0) {
+                if (mm == 0) {
+                    mm = 59;
+                    hh= hh - 1;
+                } else {
+                    mm=mm - 1;
+                }
+            } else {
+                if (mm > 0) {
+                    mm = mm - 1;
+                } else {
+                    jiaojuan();
+                    clearInterval(settime);
+                }
+            }
+            $("#hh").text(hh);
+            $("#mm").text(mm);
+        },1000);
+
+
+    </script>
+</body>
+</html>

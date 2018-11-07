@@ -1,0 +1,619 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AddYinHuan</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+    <script src="~/layui/layui.js"></script>
+    <link href="~/layui/css/layui.css" rel="stylesheet" />
+    <script src="~/js/zagJs.js"></script>
+    <script src="~/js/YhClass.js"></script>
+    <style>
+
+        /* 下拉多选样式 需要引用*/
+        select[multiple] + .layui-form-select > .layui-select-title > input.layui-input {
+            border-bottom: 0
+        }
+
+        select[multiple] + .layui-form-select dd {
+            padding: 0;
+        }
+
+        select[multiple] + .layui-form-select .layui-form-checkbox[lay-skin=primary] {
+            margin: 0 !important;
+            display: block;
+            line-height: 36px !important;
+            position: relative;
+            padding-left: 26px;
+        }
+
+            select[multiple] + .layui-form-select .layui-form-checkbox[lay-skin=primary] span {
+                line-height: 36px !important;
+                float: none;
+            }
+
+            select[multiple] + .layui-form-select .layui-form-checkbox[lay-skin=primary] i {
+                position: absolute;
+                left: 10px;
+                top: 0;
+                margin-top: 9px;
+            }
+
+        .multiSelect {
+            line-height: normal;
+            height: auto;
+            padding: 4px 10px;
+            overflow: hidden;
+            min-height: 38px;
+            margin-top: -38px;
+            left: 0;
+            z-index: 99;
+            position: relative;
+            background: none;
+        }
+
+            .multiSelect a {
+                padding: 2px 5px;
+                background: #908e8e;
+                border-radius: 2px;
+                color: #fff;
+                display: block;
+                line-height: 20px;
+                height: 20px;
+                margin: 2px 5px 2px 0;
+                float: left;
+            }
+
+                .multiSelect a span {
+                    float: left;
+                }
+
+                .multiSelect a i {
+                    float: left;
+                    display: block;
+                    margin: 2px 0 0 2px;
+                    border-radius: 2px;
+                    width: 8px;
+                    height: 8px;
+                    padding: 4px;
+                    position: relative;
+                    -webkit-transition: all .3s;
+                    transition: all .3s
+                }
+
+                    .multiSelect a i:before, .multiSelect a i:after {
+                        position: absolute;
+                        left: 8px;
+                        top: 2px;
+                        content: '';
+                        height: 12px;
+                        width: 1px;
+                        background-color: #fff
+                    }
+
+                    .multiSelect a i:before {
+                        -webkit-transform: rotate(45deg);
+                        transform: rotate(45deg)
+                    }
+
+                    .multiSelect a i:after {
+                        -webkit-transform: rotate(-45deg);
+                        transform: rotate(-45deg)
+                    }
+
+                    .multiSelect a i:hover {
+                        background-color: #545556;
+                    }
+
+        .multiOption {
+            display: inline-block;
+            padding: 0 5px;
+            cursor: pointer;
+            color: #999;
+        }
+
+            .multiOption:hover {
+                color: #5FB878
+            }
+
+        /*font-face {font-family: "iconfont"; src: url('data:application/x-font-woff;charset=utf-8;base64,d09GRgABAAAAAAaoAAsAAAAACfwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAADMAAABCsP6z7U9TLzIAAAE8AAAARAAAAFZW7kokY21hcAAAAYAAAABwAAABsgdU06BnbHlmAAAB8AAAAqEAAAOUTgbbS2hlYWQAAASUAAAALwAAADYR+R9jaGhlYQAABMQAAAAcAAAAJAfeA4ZobXR4AAAE4AAAABMAAAAUE+kAAGxvY2EAAAT0AAAADAAAAAwB/gLGbWF4cAAABQAAAAAfAAAAIAEVAGhuYW1lAAAFIAAAAUUAAAJtPlT+fXBvc3QAAAZoAAAAPQAAAFBD0CCqeJxjYGRgYOBikGPQYWB0cfMJYeBgYGGAAJAMY05meiJQDMoDyrGAaQ4gZoOIAgCKIwNPAHicY2Bk/s04gYGVgYOpk+kMAwNDP4RmfM1gxMjBwMDEwMrMgBUEpLmmMDgwVLwwZ27438AQw9zA0AAUZgTJAQAokgyoeJzFkTEOgCAQBOdAjTH+wtbezvggKyteTPyFLpyFvsC9DNnbHIEA0AJRzKIBOzCKdqVW88hQ84ZN/UBPUKU85fVcrkvZ27tMc17FR+0NMh2/yf47+quxrtvT6cVJD7pinpzyI3l1ysy5OIQbzBsVxHicZVM9aBRBFJ43c7szyeV2s/97m9zP3ppb5ZID72+9iJfDnyIiGImCMZWFXaKdaSyuESJYCFZpRZBUCpaJcCCKaexsRVHQytrC2/Pt5ZSIy+z3vvnemwfvY4ZIhAw/s33mEoMcJyfJebJCCMgVKCk0B37YqNIKWL5kOabCwiD0eVCqsjPglGTTrrUaZUfmsgoK5KHu11phlYbQbHToaajZOYDsjLeqz83q7BFMumH+fnyRPgGrEMyqnYV4eX7JrBUNsTWl61ldfyhkSRKUplQFNh17QpqYlOOnkupZ+4UTtABT2dC7tJYpzug3txu3c3POBECvB8ZMUXm2pHkarnuebehZPp0RrpcJjpmw9TXtGlO58heCXwpnfcVes7PExknPkVWctFxSIUxANgs4Q9RaglYjjIKwCqGvANfy4NQtBL8DkYaipAVVaGqNVuTnoQBYg8NzHzNaJ7HAdpjFXfF2DSEjxF2ui7T8ifP2CsBiZTCsLCbxCv4UDvlgp+kFgQcHXgAQP64s0gdQdOOKWwSM8CGJz4V4c11gQwc70hTlH4XLv12dbwO052OotGHMYYj8VrwDJQ/eeSXA2Ib24Me42XvX993ECxm96LM+6xKdBCRCNy6TdfSDoxmJFXYBaokV5RL7K/0nOHZ9rBl+chcCP7kVMML6SGHozx8Od3ZvCEvlm5KQ0nxPTJtiLHD7ny1jsnxYsAF7imkq8QVEOBgF5Yh0yNkpPIenN2QAsSdMNX6xu85VC/tiE3Mat6P8JqWM73NLhZ9mzjBy5uAlAlJYBiMRDPQleQ+9FEFfJJImGnHQHWIEmm/5UB8h8uaIIzrc4SEPozByel3oDvFcN+4D+dU/uou/L2xv/1mUQBdTCIN+jGUEgV47UkB+Aw7YpAMAAAB4nGNgZGBgAGLbQwYd8fw2Xxm4WRhA4HrO20sI+n8DCwOzE5DLwcAEEgUAPX4LPgB4nGNgZGBgbvjfwBDDwgACQJKRARWwAgBHCwJueJxjYWBgYH7JwMDCgMAADpsA/QAAAAAAAHYA/AGIAcp4nGNgZGBgYGWIYWBjAAEmIOYCQgaG/2A+AwASVwF+AHicZY9NTsMwEIVf+gekEqqoYIfkBWIBKP0Rq25YVGr3XXTfpk6bKokjx63UA3AejsAJOALcgDvwSCebNpbH37x5Y08A3OAHHo7fLfeRPVwyO3INF7gXrlN/EG6QX4SbaONVuEX9TdjHM6bCbXRheYPXuGL2hHdhDx18CNdwjU/hOvUv4Qb5W7iJO/wKt9Dx6sI+5l5XuI1HL/bHVi+cXqnlQcWhySKTOb+CmV7vkoWt0uqca1vEJlODoF9JU51pW91T7NdD5yIVWZOqCas6SYzKrdnq0AUb5/JRrxeJHoQm5Vhj/rbGAo5xBYUlDowxQhhkiMro6DtVZvSvsUPCXntWPc3ndFsU1P9zhQEC9M9cU7qy0nk6T4E9XxtSdXQrbsuelDSRXs1JErJCXta2VELqATZlV44RelzRiT8oZ0j/AAlabsgAAAB4nGNgYoAALgbsgJWRiZGZkYWRlZGNgbGCuzw1MykzMb8kU1eXs7A0Ma8CiA05CjPz0rPz89IZGADc3QvXAAAA') format('woff')}*/
+        .iconfont {
+            font-family: "iconfont" !important;
+            font-size: 16px;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .icon-fanxuan:before {
+            content: "\e837";
+        }
+
+        .icon-quanxuan:before {
+            content: "\e623";
+        }
+
+        .icon-qingkong:before {
+            content: "\e63e";
+        }
+
+
+        .rights{width:35%;height:100%;position:fixed;right:0px;top:0px;background:#f0f0f0;overflow-y:auto}
+        .rights div{width:90%;margin:20px auto;font-size:14px;line-height:25px;padding:18px 18px;background:#fff}
+    </style>
+</head>
+<body>
+    <div class="layui-fluid" style="width:90%;margin:20px 10px 20px 10px;max-width:600px"> 
+        <form class="layui-form layui-form-pane" lay-filter="form">
+            <h2 style="text-align:center">项目HSE现场检查整改通知单</h2>
+            <div class="layui-row">
+                <div class="layui-col-xs12" style="float:right;">
+                    <div class="layui-form-item" style="border:0px">
+                        <div class="layui-input-block" style="line-height:34px;text-align:right;color:#ff6a00">
+                            编号：
+                            <span id="no"></span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row" style="padding-bottom:0px">
+                <div class="layui-col-xs12 layui-col-sm8 layui-col-md8">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span style="color:#ff6a00">* </span>项目名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="y_name" required lay-verify="required" placeholder="请输入项目名称" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm4 layui-col-md4">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">检查日期</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="y_createtime" class="layui-input" id="jcTime" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">检查内容</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="y_body" placeholder="请输入检查内容" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">检查区域</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="y_area" placeholder="请输入检查区域" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">隐患类别</label>
+                        <div class="layui-input-block">
+                            <select name="y_type" multiple lay-search="">
+                                <option value="">请选择检查类型</option>
+                                <option value="文明施工">文明施工</option>
+                                <option value="物体打击">物体打击</option>
+                                <option value="车辆伤害">车辆伤害</option>
+                                <option value="机械伤害">机械伤害</option>
+                                <option value="起重伤害">起重伤害</option>
+                                <option value="触电">触 电</option>
+                                <option value="淹溺">淹 溺</option>
+                                <option value="灼烫">灼 烫</option>
+                                <option value="火灾">火 灾</option>
+                                <option value="高处坠落">高处坠落</option>
+                                <option value="坍塌">坍 塌</option>
+                                <option value="冒顶片帮">冒顶片帮</option>
+                                <option value="透水">透 水</option>
+                                <option value="放炮">放 炮</option>
+                                <option value="火药爆炸">火药爆炸</option>
+                                <option value="瓦斯爆炸">瓦斯爆炸</option>
+                                <option value="锅炉爆炸">锅炉爆炸</option>
+                                <option value="容器爆炸">容器爆炸</option>
+                                <option value="其他爆炸">其他爆炸</option>
+                                <option value="中毒和窒息">中毒和窒息</option>
+                                <option value="其他伤害">其他伤害</option>
+                            </select>
+
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">严重程度</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="y_dengji" value="1" title="一般" checked>
+                            <input type="radio" name="y_dengji" value="2" title="严重">
+                            <input type="radio" name="y_dengji" value="3" title="重大">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">问题描述</label>
+                        <div class="layui-input-block">
+                            <textarea id="y_desc" name="y_desc" onkeyup="getLaw(this)" style="resize:none" placeholder="请输入内容" class="layui-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm5">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">现场照片</label>
+                        <div class="layui-input-block">
+                            <button type="button" class="layui-btn" name="y_img1" id="y_img1">
+                                <i class="layui-icon">&#xe67c;</i>选择/拍摄现场
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm7">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label" style="border:0px;background:#fff">图像预览区</label>
+                        <div class="layui-input-block" id="viewImg">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">整改期限至</label>
+                        <div class="layui-input-block">
+                            <input type="text" class="layui-input" name="y_endtime" id="test2" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-xs12 layui-col-sm6 layui-col-md6">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label" style="font-size:11px"><span style="color:#ff6a00">* </span>责任负责人</label>
+                        <div class="layui-input-block">
+                            <select id="y_zguser" name="y_zguser" lay-filter="y_zguser">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-sm12 layui-col-md12">
+                    <div class="layui-form-item" pane>
+                        <label class="layui-form-label">整改要求</label>
+                        <div class="layui-input-block">
+                            <textarea name="y_yaoqiu" placeholder="请输入整改要求" style="resize:none" class="layui-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <blockquote class="layui-elem-quote">
+                <div class="layui-row layui-col-space10">
+                    <div class="layui-col-xs12 layui-col-sm6">
+                        是否需上级审核？
+                        <input type="radio" name="sex" value="1" lay-filter="sex" title="需要">
+                        <input type="radio" name="sex" value="0" lay-filter="sex" title="不需要" checked>
+                    </div>
+                    <div id="y_head" class="layui-col-xs12 layui-col-sm6 " style="display:none">
+                        <select id="y_headuser" name="y_headuser" lay-filter="y_headuser">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </blockquote>
+            
+            <div class="">
+                <div style="text-align:right">
+                    <button class="layui-btn" lay-submit lay-filter="send">
+                        <i class="layui-icon">&#xe609;</i> 立即提交</button>
+                </div>
+            </div>
+
+        </form>
+        
+    </div>
+
+    <div class="rights layui-hide-xs">
+        <div style="height:50px;font-size:16px;font-weight:bold;text-align:center;line-height:50px;"><i>没有检索数据</i></div>
+        @*<div><input type="radio" name="sex" value="男" title="男"></div>*@
+    </div>
+
+    <script>
+        var configUrl = parent.configUrl
+            , userInfo = parent.userInfo;
+        var y_id = "@ViewBag.y_id";
+        var y_headuser = 0;
+        var y_zguser = 0;
+
+        function getLaw(str) {
+            var word = $(str).val();
+            if (word != "") {
+                var reg = new RegExp(word);
+                var html = "";
+                for (var i = 0; i < YHarr.length; i++){
+                    if (reg.test(YHarr[i].desc) || reg.test(YHarr[i].law)) {
+                        html += '<div><input type="radio" onclick="selectMe(this)" name="laws" value="' + YHarr[i].law + '" ><span>' + YHarr[i].desc + ' \n \n <br/>违反规范条文及内容：' + YHarr[i].law + ' </span></div>';
+                    }
+                }
+                $(".rights").html(html);
+            }
+        }
+
+        function selectMe(str) {
+            
+            layui.use("form", function () {
+                var form = layui.form;
+                form.val("form", {
+                    "y_desc": $(str).parent("div").find("span").html().replace('<br>', '')
+                });
+            });
+        }
+
+        ///获取编号
+        $.ajax({
+            url: configUrl + "/api/yhtable/gdt/SetNo?y_headid=" + userInfo.data[0].head_id,
+            type: "post",
+            contentType: "application/json",
+            success: function (res) {
+                $("#no").text(res);
+            }
+        });
+        
+        
+        layui.use(["form", "layer","laydate","upload","code"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , laydate = layui.laydate
+                , upload = layui.upload
+                , date = new Date()
+                , $ = layui.$;
+            // 代码块
+            layui.code({
+                title: 'html',
+                encode: true,
+                about: false
+
+            });
+
+
+            //加载会员基础数据信息
+            //定义整改前的图片变量
+            var y_img1 = "";
+
+
+            //设置时间数据信息
+            var month = date.getMonth() + 1;
+            var getDate = date.getDate();
+            var addDay = date.getDate() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+            if (getDate < 10) {
+                getDate = "0" + getDate;
+            }
+            if (addDay + 1 < 10) {
+                addDay = "0" + addDay;
+            }
+
+
+            ///渲染各模块
+            //渲染上传按钮
+            //上传整改前的图片
+            upload.render({
+                elem: "#y_img1",
+                url: configUrl + "/api/files/gdt/uploadfile",
+                choose: function (obj) {
+                    layer.load(1);
+                    //将每次选择的文件追加到文件队列
+                    var files = obj.pushFile();
+                    //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                    obj.preview(function (index, file, result) {
+                        //console.log(index); //得到文件索引
+                        //console.log(file); //得到文件对象
+                        //console.log(result); //得到文件base64编码，比如图片
+                        $("#viewImg").html("<img src='" + result + "' style='width:80px;' />");
+                    });
+                },
+                done: function (res) {
+                    if (res.code == 0) {
+                        y_img1 = res.data.src;
+                        layer.closeAll("loading");
+                    }
+                }
+            });
+
+
+
+
+            //渲染日期类型
+            laydate.render({
+                elem: "#jcTime",
+                value: date.getFullYear() + "-" + month + "-" + getDate
+            });
+            laydate.render({
+                elem: "#test2",
+                value: date.getFullYear() + "-" + month + "-" + getDate + " " + date.getHours() + ":" + date.getMinutes() + ":00",
+                type: "datetime"
+            });
+
+
+            //数据绑定
+            if (y_id != "") {
+                $.ajax({
+                    url: configUrl+"/api/yhtable/gdt/Query?y_id=" + y_id,
+                    type: "post",
+                    contentType: "application/json",
+                    async: false,
+                    success: function (res) {
+                        //alert(res.data[0].y_type);
+                        y_headuser = res.data[0].y_headuser;
+                        y_zguser = res.data[0].y_zguser;
+                        form.val("form", {
+                            "y_name": "" + res.data[0].y_name,
+                            "y_createtime": "" + timestampToTime2(res.data[0].y_createtime),
+                            "y_body": "" + res.data[0].y_body,
+                            "y_area": "" + res.data[0].y_area,
+                            "y_dengji": "" + res.data[0].y_dengji,
+                            "y_desc": "" + res.data[0].y_desc,
+                            "y_endtime": "" + timestampToTime(res.data[0].y_endtime),
+                            "y_yaoqiu": "" + res.data[0].y_yaoqiu
+                        });
+
+                        var ttype = res.data[0].y_type.split(",");
+
+                        $('select[name="y_type"]').val(ttype);
+
+                        if (res.data[0].y_img1 != "") {
+                            $("#viewImg").html('<img src="' + configUrl + '/Files/' + res.data[0].y_img1 + '" style="width:80px" />');
+                            y_img1 = res.data[0].y_img1;
+                        }
+                        if (res.data[0].y_headuser > 0) {
+                            form.val("form", {
+                                "sex": "1"
+                            });
+                            $("#y_head").fadeIn(100);
+                        }
+                        form.render();
+                        //y_type,viewImg,y_img1,sex
+                    }
+                });
+            }
+
+            var sele = 0;
+            ////
+            form.on('radio(sex)', function (data) {
+                
+                console.log(data.elem); //得到radio原始DOM对象
+                console.log(data.value); //被点击的radio的value值
+                if (data.value == "0") {
+                    $("#y_head").fadeOut(100);
+                    sele = 0;
+                } else {
+                    $("#y_head").fadeIn(100);
+                    sele = 1;
+                }
+            });
+            
+            //查询上级管理员列表
+            $.ajax({
+                url: configUrl + "/api/Train_project/gdt/QueryAllHead?head_id=" + userInfo.data[0].head_id + "&com_id=" + userInfo.data[0].com_id,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    console.log(res);
+                    var html = '<option value="">请选择上级审批人</option>';
+                    var html2 = '<option value="">请选择整改负责人</option>';
+                    if (res.code == 0) {
+                        for (var i = 0; i < res.data.length; i++) {
+                            if (res.data[i].com_id == userInfo.data[0].com_id && res.data[i].verify <= userInfo.data[0].verify) {
+                                if (res.data[i].b_id == userInfo.data[0].b_id || res.data[i].b_id==0) {
+                                    html += '<option value="' + res.data[i].us_id + '">' + res.data[i].real_name + '</option>';
+                                }
+                            }
+                            
+                        }
+                        for (var i = 0; i < res.data.length; i++){
+                            if (res.data[i].verify <= 3) {
+                                if (userInfo.data[0].verify >= 2 && res.data[i].b_id == userInfo.data[0].b_id) {
+                                    html2 += '<option value="' + res.data[i].us_id + '">' + res.data[i].real_name + '</option>';
+                                }
+                                if (userInfo.data[0].verify<2) {
+                                    html2 += '<option value="' + res.data[i].us_id + '">' + res.data[i].real_name + '</option>';
+                                }
+                                
+                            }
+                        }
+                    }
+                    $("#y_zguser").html(html2);
+                    $("#y_headuser").html(html);
+                    form.val("form", {
+                        "y_zguser": "" + y_zguser,
+                        "y_headuser": "" + y_headuser
+                    });
+                    
+                    form.render();
+                }
+            });
+
+            
+
+
+            
+            
+
+            //send
+            form.on("submit(send)", function (obj) {
+                layer.load(1);
+                obj.field.y_usid = userInfo.data[0].us_id;
+                obj.field.y_headid = userInfo.data[0].head_id;
+                obj.field.y_img1 = y_img1;
+                obj.field.y_type = obj.field.y_type.join(',');
+                //alert(y_img1);
+                if (sele == 0) {
+                    obj.field.y_headuser = 0;
+                }
+                
+                //api/yhtable/gdt/JianChaUpdate
+                var url = configUrl + "/api/yhtable/gdt/CreateYh";
+                if (y_id != "") {
+                    url = configUrl + "/api/yhtable/gdt/JianChaUpdate?y_id=" + y_id;
+                }
+                $.ajax({
+                    url: url,
+                    type: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res > 0) {
+                            layer.msg("数据已成功提交", { icon: 1 }, function () {
+                                if (parent.getData(parent.page, parent.head_id, parent.verify)){
+                                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                    parent.layer.close(index); //再执行关闭 
+                                    parent.getData(parent.page, parent.head_id, parent.verify);
+                                }
+                                
+                                
+                            });
+                        } else {
+                            layer.msg("数据提交失败", { icon: 2 });
+                        }
+                    }
+                });
+                return false;
+            });
+
+            
+        });
+
+        
+    </script>
+</body>
+</html>

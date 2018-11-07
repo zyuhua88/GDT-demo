@@ -1,0 +1,85 @@
+@import url('permission.css');
+[v-cloak] {
+    display: none;
+}
+.layui-form .layui-row .layui-col-md5 #user-card {
+    color: red
+}
+
+.user-rights {
+    color: #666;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.color666 {
+    color: #666;
+}
+
+.table-left, .table-left tr, .table-left tr td {
+    border: none;
+    color: #666;
+}
+
+.table-left tr td {
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.user-rights tr td {
+    height: 38px;
+    padding-left: 15px;
+    padding-right: 6px;
+    border: 1px solid #e6e6e6;
+}
+
+.mt20 {
+    margin-top: 20px;
+}
+
+.td-h {
+    line-height: 57px;
+}
+
+.bg{
+	background: #eee;
+}
+
+.pr0 {
+    padding-right: 0;
+}
+
+.layui-form-radio {
+    margin: 0;
+    padding: 0;
+}
+
+.layui-form-radio>i {
+    margin: 0;
+}
+
+.submission {
+    width: 100%;
+    height: 60px;
+    position: fixed;
+    left: 0;
+    background: #fff;
+    border-top: 1px solid #dcdcdc;
+    text-align: center;
+    line-height: 60px
+}
+
+@media screen and (max-width:768px) {
+    .submission {
+        bottom: 0;
+    }
+}
+
+@media screen and (min-width:768px) {
+    .submission {
+        bottom: 40px;
+    }
+    .card2 {
+        margin-bottom: 40px;
+    }
+}
+

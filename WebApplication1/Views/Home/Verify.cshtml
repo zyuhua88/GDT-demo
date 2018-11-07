@@ -1,0 +1,221 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="~/css/permission.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="layui-fluid main-content bg" id="verify" style="padding-bottom:80px" v-cloak>
+        <div style="height:16px"> </div>
+        <form class="layui-form" action="" onsubmit="return false;" lay-filter="form">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md5 color666">
+                    <div class="layui-card" id="user-card">
+                        <div class="layui-card-header">用户列表</div>
+                        <div class="layui-card-body">
+                            <table class="table-left" id="user-left">
+                                <colgroup>
+                                    <col width="5%">
+                                    <col width="35%">
+                                    <col width="35%">
+                                    <col width="25%">
+                                </colgroup>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md7 card2">
+                    <div class="layui-card">
+                        <div class="layui-card-header">权限列表</div>
+                        <div class="layui-card-body">
+                            <table class="user-rights">
+                                <colgroup>
+                                    <col width="5%">
+                                    <col width="20%">
+                                    <col width="75%">
+                                </colgroup>
+                                <!--权限列表-->
+                                <template v-for="value,index in permissionData.parents.length">
+
+                                    <tr v-for="item,key in permissionData.children[index]">
+
+                                        <td>
+                                            <div @@click="checkboxHandle(index, key)"><input :name="checkKey(index)" type="checkbox" lay-skin="primary" class="check">
+                                            </div>
+                                        </td>
+
+                                        <td :rowspan="permissionData.children[index].length" v-if="key === 0">
+                                            {{permissionData.parents[index].name}}
+                                        </td>
+
+                                        <td><label for="user-logo">{{item.name}}</label></td>
+
+                                    </tr>
+                                </template>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="submission">
+        <div class="layui-btn submit" id="send"><i class="layui-icon">&#xe672;</i> 开始授权</div>
+        <a style="color:#ff6a00;padding-left:16px">如无授权，将采用系统默认权限</a>
+    </div>
+
+    <script src="~/vue.js"></script>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <script src="~/js/menu.js"></script>
+    <script type="text/javascript">
+        var userInfo = parent.userInfo,
+            configUrl = parent.configUrl;
+        var index = "@ViewBag.index";
+        var head_id = userInfo.data[0].head_id;
+        var com_id = 0;
+        var b_id = 0;
+        var c_id = 0;
+        var value = "";
+        var page = 1;
+        var us_id = 0;
+        var newPermissionData = menu.permissionData;
+
+        //获取用户信息
+        layui.use(["form", "layer", "table"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , table = layui.table;
+            var url = configUrl + "/api/users/gdt/queryuserlist?head_id=" + head_id + "&com_id=" + com_id + "&b_id=" + b_id + "&c_id=" + c_id + "&value=" + value + "&page=" + page + "&count=15&verify=" + userInfo.data[0].verify + "&mycom_id=" + userInfo.data[0].com_id + "&myb_id=" + userInfo.data[0].b_id + "&myc_id=" + userInfo.data[0].c_id + "";
+            $.ajax({
+                url: url,
+                type: "post",
+                contentType: "application/json",
+                success: function (res) {
+                    var usdata = res.data;
+                    $.each(usdata, function (index, item) {
+                        if (item.verify == 4) {
+                            verify = '个人'
+                        } else if (item.verify == 3) {
+                            verify = '班组'
+                        } else if (item.verify == 2) {
+                            verify = '部门'
+                        } else if (item.verify == 1) {
+                            verify = '公司'
+                        } else {
+                            verify = '集团'
+                        }
+
+                        let el = "<tr>" + "<td><input type='radio' name='user_list' value='" + item.us_id + "' class='pr0' lay-filter='us_id' /></td>"
+                            + "<td>" + item.real_name + "</td>"
+                            + "<td>" + item.login_name + "</td>"
+                            + "<td>" + verify + "</td>" + "</tr>";
+                        $('#user-left').append(el);
+                    })
+                    form.render();
+
+                    // databind(head_id, com_id, b_id, c_id, value, page, e, res.data)
+                }
+            });
+
+            form.on("radio(us_id)", function (data) {
+                layer.load(1);
+                us_id = data.value
+
+                // 查询权限
+                $.ajax({
+                    url: configUrl + "/api/user_menu/gdt/Query?us_id=" + us_id,
+                    type: "post",
+                    contentType: "application/json",
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res.code === 0) {
+                            //console.log(JSON.parse(res.data[0].menu));
+                            var list = JSON.parse(res.data[0].menu);
+                            vue.permissionData = JSON.parse(res.data[0].menu);
+                            var index = 0;
+                            //alert(list.children[1][0].checked);
+                            
+                            for (var i = 0; i < list.children.length; i++) {
+                                for (var j = 0; j < list.children[i].length; j++) {
+                                    //alert();
+                                    if (list.children[i][j].checked) {
+                                        $(".check").eq(index).prop("checked", true);
+                                    } else {
+                                        $(".check").eq(index).prop("checked",false);
+                                    }
+                                    index++;
+                                }
+                            }
+                        } else {
+                            vue.permissionData = menu.permissionData;
+                            $(".check").removeAttr("checked");
+                        }
+                        form.render();
+                    }
+                })
+            });
+
+            // 分配权限
+            $("#send").on("click", function () {
+                //alert(us_id)
+                layer.load(1);
+                if (us_id == 0) {
+                    layer.closeAll("loading");
+                    layer.msg("请选择员工信息", {icon:2});
+                    return;
+                }
+                $.ajax({
+                    url: configUrl + "/api/user_menu/gdt/Add?us_id=" + us_id,
+                    type: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify({ menu: JSON.stringify(vue.permissionData) }),
+                    success: function (res) {
+                        console.log(res);
+                        layer.closeAll("loading");
+                        if (res.code == 0) {
+                            layer.msg("授权成功");
+                        } else {
+                            layer.msg("授权失败");
+                        }
+                    }
+                });
+            })
+
+
+        });
+
+        var vue = new Vue({
+            el: '#verify',
+            data: {
+                permissionData: newPermissionData
+            },
+            methods: {
+                checkboxHandle(index, key) {
+                    // 将checkbox的值取反后赋值给新数组
+                    this.permissionData.children[index][key].checked = !this.permissionData.children[index][key].checked;
+                    newPermissionData = this.permissionData;
+                    //alert(JSON.stringify(newPermissionData));
+                },
+                checkKey(index) {
+                    return "check"+ index;
+                }
+            },
+            
+        });
+
+
+    </script>
+</body>
+</html>

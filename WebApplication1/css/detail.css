@@ -1,0 +1,102 @@
+﻿img {
+    display: inline-block;
+    width: auto;
+    min-width: 60px;
+    height: 150px;
+}
+
+p {
+    padding: 10px;
+    border-right: 1px solid gray;
+    max-height: 140px;
+    overflow-y: scroll;
+    color: #646464;
+}
+
+.layui-container {
+    max-width: 960px;
+}
+
+.titles {
+    text-align: center;
+}
+
+.layui-row div {
+    border: 1px solid gray;
+    height: 40px;
+    line-height: 40px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.noborder-l {
+    border: none !important;
+    border-left: 1px solid gray !important;
+    border-bottom: 1px solid gray !important;
+}
+
+.noborder-r {
+    border: none !important;
+    border-right: 1px solid gray !important;
+    border-bottom: 1px solid gray !important;
+}
+
+.imgbox {
+    min-height: 160px;
+}
+
+@media only screen and (max-width: 420px) {
+    .layui-row div {
+        border: none 0 !important;
+    }
+
+    .imgBox {
+        min-height: 300px;
+    }
+
+    .imgbox {
+        min-height: 300px;
+    }
+
+    .theImg {
+        float: none;
+        min-width: 280px;
+        height: 260px !important;
+    }
+
+        .theImg img {
+            width: auto;
+            height: 200px;
+        }
+
+    .titles {
+        font-weight: bold;
+        text-align: left;
+    }
+}
+
+/*打印*/
+@media only screen and (min-width: 421px) and (max-width: 767px) {
+    .titles {
+        width: 30%;
+    }
+
+    .contents {
+        width: 70%;
+    }
+
+    .theImg {
+        position: relative;
+        left: -30px;
+    }
+
+    .noborder-l {
+        width: 50%;
+        float: left;
+    }
+
+    .noborder-r {
+        width: 50%;
+        float: right;
+    }
+}

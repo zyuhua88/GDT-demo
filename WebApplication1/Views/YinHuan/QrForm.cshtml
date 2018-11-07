@@ -1,0 +1,163 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>QrForm</title>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/js/zagJs.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" />
+    <style>
+        html, body {
+            background: #f0f0f0
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid" style="width:90%;margin:50px auto;max-width:700px;background:#fff;padding:30px 20px">
+        <form class="layui-form" lay-filter="form">
+
+            <div class="layui-row" style="margin:15px auto">
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-md2 layui-hide-xs" style="text-align:right;line-height:34px">
+                    复检描述&nbsp;&nbsp;
+                </div>
+                <div class="layui-col-xs12 layui-col-sm7 layui-col-md8">
+                    <textarea name="y_qrdesc" required lay-verify="required" style="resize:none" placeholder="请输入复查情况" class="layui-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="layui-row" style="margin:15px auto">
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-md2 layui-hide-xs" style="text-align:right;line-height:34px">
+                    整改后照片&nbsp;&nbsp;
+                </div>
+                <div class="layui-col-xs12 layui-col-sm7 layui-col-md8">
+                    <div class="layui-upload-drag" name="y_qrimg" id="y_qrimg">
+                        <i class="layui-icon"></i>
+                        <p>点击上传，或将文件拖拽到此处</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row" style="margin:15px auto">
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-md2 layui-hide-xs" style="text-align:right;line-height:34px">
+                    图像预览区&nbsp;&nbsp;
+                </div>
+                <div class="layui-col-xs12 layui-col-sm7 layui-col-md8">
+                    <div class="layui-input-block" id="viewImg">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-row" style="margin:15px auto">
+                <div class="layui-col-xs12 layui-col-sm3 layui-col-md2 layui-hide-xs" style="text-align:right;line-height:34px">
+                    完成状态&nbsp;&nbsp;
+                </div>
+                <div class="layui-col-xs12 layui-col-sm7 layui-col-md8">
+                    <div class="layui-input-block" id="viewImg">
+                        <input type="radio" name="y_status" value="1" title="重新整改">
+                        <input type="radio" name="y_status" value="2" title="整改完成" checked>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <div class="">
+                <div style="text-align:right">
+                    <button class="layui-btn" lay-submit lay-filter="send">
+                        <i class="layui-icon">&#xe609;</i> 立即提交
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+    <script>
+        var configUrl = parent.configUrl
+            , userInfo = parent.userInfo;
+        var y_id = "@ViewBag.y_id";
+        var y_headuser = 0;
+        var y_zguser = 0;
+
+
+
+        layui.use(["form", "layer","laydate","upload"], function () {
+            var form = layui.form
+                , layer = layui.layer
+                , laydate = layui.laydate
+                , upload = layui.upload
+                , date = new Date()
+                , $ = layui.$;
+            
+
+
+            //加载会员基础数据信息
+            //定义整改前的图片变量
+            var y_qrimg = "";
+            
+            ///渲染各模块
+            //渲染上传按钮
+            //上传整改前的图片
+            upload.render({
+                elem: "#y_qrimg",
+                url: configUrl + "/api/files/gdt/uploadfile",
+                choose: function (obj) {
+                    layer.load(1);
+                    //将每次选择的文件追加到文件队列
+                    var files = obj.pushFile();
+                    //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                    obj.preview(function (index, file, result) {
+                        $("#viewImg").html("<img src='" + result + "' style='width:80px;' />");
+                    });
+                },
+                done: function (res) {
+                    if (res.code == 0) {
+                        y_qrimg = res.data.src;
+                        layer.closeAll("loading");
+                    }
+                }
+            });
+
+
+            
+
+
+            //send
+            form.on("submit(send)", function (obj) {
+                obj.field.y_qrimg = y_qrimg;
+                obj.field.y_qruser = userInfo.data[0].us_id;
+                obj.field.y_qrtime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":00:00";
+                layer.load(1);
+                $.ajax({
+                    url: configUrl + "/api/yhtable/gdt/QueRen?y_id=" + y_id,
+                    contentType: "application/json",
+                    type: "post",
+                    data: JSON.stringify(obj.field),
+                    success: function (res) {
+                        layer.closeAll("loading");
+                        if (res>0){
+                            parent.getData(parent.page, 0);
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                        }
+                    }
+                });
+                return false;
+            });
+
+
+        });
+
+
+    </script>
+</body>
+</html>
